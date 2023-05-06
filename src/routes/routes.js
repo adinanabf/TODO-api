@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const User = require("../models/user_model");
-const bcrypt = require("bcryptjs");
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
 const Joi = require("@hapi/joi");
 const jwt = require("jsonwebtoken");
 
