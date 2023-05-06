@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const User = require("../models/user_model.js");
+const User = require("../models/user_model");
 const bcrypt = require("bcryptjs");
 const Joi = require("@hapi/joi");
 const jwt = require("jsonwebtoken");
@@ -49,9 +49,9 @@ router.post("/login", async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
   
     const user = await User.findOne({ email: req.body.email });
-  
+    // console.log(user.password)
     if (!user) return res.status(400).send("Email or password is wrong");
-  
+    
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) return res.status(400).send("Email or password is wrong");
   
