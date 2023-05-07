@@ -14,24 +14,32 @@ const loginSchema = Joi.object({
   password: Joi.string().min(8).required()
 });
 
-const TODOSchema = Joi.object({
+const TODOcreateSchema = Joi.object({
   description: Joi.string().min(0).max(255).required(),
   deadline: Joi.date().iso().required(),
   statusConclusion: Joi.bool(),
   datetimeConclusion: Joi.date().iso()
 });
 
+const TODOCloseSchema = Joi.object({
+  description: Joi.string().min(0).max(255).required(),
+});
+
+const TODOEditSchema = Joi.object({
+  description: Joi.string().min(0).max(255).required(),
+  newDescription: Joi.string().min(0).max(255).required(),
+  newDeadline: Joi.date().iso().required()
+});
+
 router.post("/register", async (req, res) => {
     const { error } = registerSchema.validate(req.body);
 
-    if (error) return res.status(400).json({
-      msg: error.details[0].message.replace('"','').replace('"', '')
-    });
-    
+    if (error) return res.status(400).send(
+      error.details[0].message.replace('"','').replace('"', '')
+    );
+
     const emailExists = await User.findOne({ email: req.body.email });
-    if (emailExists) return res.status(400).json({
-      msg: "Email already exists."
-    });
+    if (emailExists) return res.status(400).send('Email already exists.');
   
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
@@ -43,27 +51,23 @@ router.post("/register", async (req, res) => {
   
     try {
       await user.save();
-      res.status(201).json({msg: "User created successfully."});
+      res.status(201).send('User created successfully.');
     } catch (error) {
-      res.status(500).json({msg: error});
+      res.status(500).send(error);
     }
 });
 
 router.post("/login", async (req, res) => {
     const { error } = loginSchema.validate(req.body);
-    if (error) return res.status(400).json({
-      msg: error.details[0].message.replace('"', '')
-    });
+    if (error) return res.status(400).send(
+      error.details[0].message.replace('"', '')
+    );
   
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).json({
-      msg: "User not found."
-    });
+    if (!user) return res.status(404).send('User not found.');
     
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass) return res.status(422).json({
-      msg: "Password incorrect."
-    });
+    if (!validPass) return res.status(422).send('Password incorrect.');
   
     try {
       const token = jwt.sign({
@@ -79,7 +83,7 @@ router.post("/login", async (req, res) => {
         });
     } catch (error) {
       console.log(error);
-      res.status(500).json({msg: 'Internal Server Error.'});
+      res.status(500).send('Internal Server Error.');
     }
   });
 
@@ -89,37 +93,157 @@ router.post("/TODO/create", checkToken, async(req, res) => {
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
 
-  const { error } = TODOSchema.validate(req.body);
+  const { error } = TODOcreateSchema.validate(req.body);
 
-  if (error) return res.status(400).json({
-    msg: error.details[0].message.replace('"','').replace('"', '')
-  });
-
-  const user = await User.findById(decodedInfo._id);
-
-  const unique_TODO = user.TODO.find(
-    item => item.description === req.body.description
+  if (error) return res.status(400).send(
+    error.details[0].message.replace('"','').replace('"', '')
   );
 
-  const now = new Date();
-  const timestampISO = now.toISOString();
-
-  if (!unique_TODO) {
+  try {
+    const user = await User.findById(decodedInfo._id);
+  
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+  
+    const uniqueTODO = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (uniqueTODO) {
+      return res.status(409).send('The description must be unique.');
+    }
+  
+    const now = new Date();
+    const timestampISO = now.toISOString();
     const todo = {
       description: req.body.description,
       deadline: req.body.deadline,
+      statusConclusion: false,
       lastModification: timestampISO
     };
+    user.TODO.push(todo);
+  
+    await user.save();
+  
+    return res.status(201).send('TODO created successfully.');
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+})
 
-    try {
-      user.TODO.push(todo);
-      await user.save();
-      res.status(201).json({msg: "TODO created successfully."});
-    } catch (error) {
-      res.status(500).json({msg: error});
+router.put("/TODO/close", checkToken, async(req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
+  const { error } = TODOCloseSchema.validate(req.body);
+
+  if (error) return res.status(400).send(
+    error.details[0].message.replace('"','').replace('"', '')
+  );
+
+  try {
+    const user = await User.findById(decodedInfo._id);
+  
+    if (!user) {
+      return res.status(404).send('User not found.');
     }
-  } else {
-    res.status(409).json({msg: "The description must be unique."});
+  
+    const todo = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (!todo) {
+      return res.status(404).send('TODO item not found.');
+    }
+  
+    if (todo.statusConclusion) {
+      return res.status(409).send('TODO item already closed.');
+    }
+  
+    todo.statusConclusion = true;
+    todo.lastModification = new Date().toISOString();
+  
+    await user.save();
+  
+    return res.status(200).send('TODO item closed successfully.');
+  } catch (error) {
+    return res.status(500).send('Error closing TODO item.');
+  }
+})
+
+router.put("/TODO/edit", checkToken, async(req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
+  const { error } = TODOEditSchema.validate(req.body);
+
+  if (error) return res.status(400).send(
+    error.details[0].message.replace('"','').replace('"', '')
+  );
+
+  try {
+    const user = await User.findById(decodedInfo._id);
+  
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+  
+    const todo = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (!todo) {
+      return res.status(404).send('TODO item not found.');
+    }
+  
+    if (todo.statusConclusion) {
+      return res.status(409).send('TODO item already closed.');
+    }
+  
+    todo.description = req.body.newDescription;
+    todo.deadline = req.body.newDeadline;
+    todo.lastModification = new Date().toISOString();
+  
+    await user.save();
+  
+    return res.status(200).send('TODO item updated successfully.');
+  } catch (error) {
+    return res.status(500).send('Error updating TODO item.');
+  }
+})
+
+router.get("/TODO", checkToken, async(req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
+  const { error } = TODOEditSchema.validate(req.body);
+
+  try {
+    const user = await User.findById(decodedInfo._id);
+  
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+  
+    const todos = user.TODO;
+  
+    const now = new Date();
+    const todosWithDeadlineStatus = todos.map(todo => {
+      const deadline = new Date(todo.deadline);
+      const isPastDeadline = deadline < now;
+      return {
+        ...todo.toObject(),
+        isPastDeadline,
+      };
+    });
+  
+    return res.status(200).json(todosWithDeadlineStatus);
+  } catch (error) {
+    return res.status(500).send('Error fetching TODO items.');
   }
 })
 
@@ -128,7 +252,7 @@ function checkToken(req, res, next){
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token){
-    return res.status(401).json({ msg: 'Access denied.'});
+    return res.status(401).send('Access denied. Token missing or invalid.');
   }
 
   try {
@@ -136,7 +260,7 @@ function checkToken(req, res, next){
     jwt.verify(token, secret);
     next ();
   } catch(error) {
-    res.status(400).json({ msg: 'Invalid token.'});
+    res.status(401).send('Access denied. Token missing or invalid.');
   }
 }
 
