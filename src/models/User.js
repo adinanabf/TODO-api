@@ -10,10 +10,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    max: 2048,
+    max: 255,
     min: 8
   },
-  date: {
+  userCreation: {
     type: Date,
     default: Date.now
   },
