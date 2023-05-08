@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const TODO_Schema = new mongoose.Schema({
   description: {
@@ -23,4 +23,4 @@ const TODO_Schema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("TODOSchema", TODO_Schema);
+module.exports = mongoose.model('TODOSchema', TODO_Schema);

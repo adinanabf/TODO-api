@@ -1,8 +1,8 @@
-const router = require("express").Router();
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const Joi = require("@hapi/joi");
-const jwt = require("jsonwebtoken");
+const router = require('express').Router();
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const Joi = require('@hapi/joi');
+const jwt = require('jsonwebtoken');
 
 const registerSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -31,7 +31,7 @@ const TODOEditSchema = Joi.object({
   newDeadline: Joi.date().iso().required()
 });
 
-router.post("/register", async (req, res) => {
+router.post('/register', async (req, res) => {
     const { error } = registerSchema.validate(req.body);
 
     if (error) return res.status(400).json({
@@ -59,7 +59,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({
       error: error.details[0].message.replace('"','').replace('"', '')
@@ -81,10 +81,10 @@ router.post("/login", async (req, res) => {
           email: user.email 
         },
         process.env.TOKEN_SECRET, {
-          expiresIn: "0.5hr"
+          expiresIn: '0.5hr'
         });
-      res.header("auth-token", token).json({
-          message: "You are successfully logged in.",
+      res.header('auth-token', token).json({
+          message: 'You are successfully logged in.',
           token: token
         });
     } catch (error) {
@@ -96,7 +96,7 @@ router.post("/login", async (req, res) => {
   });
 
 
-router.post("/TODO/create", checkToken, async(req, res) => {
+router.post('/TODO/create', checkToken, async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
@@ -147,7 +147,7 @@ router.post("/TODO/create", checkToken, async(req, res) => {
   }
 })
 
-router.put("/TODO/close", checkToken, async(req, res) => {
+router.put('/TODO/close', checkToken, async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
@@ -163,7 +163,7 @@ router.put("/TODO/close", checkToken, async(req, res) => {
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
-    }
+    };
   
     const todo = user.TODO.find(
       item => item.description === req.body.description
@@ -171,11 +171,11 @@ router.put("/TODO/close", checkToken, async(req, res) => {
   
     if (!todo) {
       return res.status(404).json({ error: 'TODO item not found.' });
-    }
+    };
   
     if (todo.statusConclusion) {
       return res.status(409).json({ error: 'TODO item already closed.' });
-    }
+    };
   
     todo.statusConclusion = true;
     todo.lastModification = new Date().toISOString();
@@ -189,7 +189,7 @@ router.put("/TODO/close", checkToken, async(req, res) => {
   }
 })
 
-router.put("/TODO/edit", checkToken, async(req, res) => {
+router.put('/TODO/edit', checkToken, async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
@@ -205,7 +205,7 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
-    }
+    };
   
     const todo = user.TODO.find(
       item => item.description === req.body.description
@@ -213,11 +213,11 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
   
     if (!todo) {
       return res.status(404).json({ error: 'TODO item not found.' });
-    }
+    };
   
     if (todo.statusConclusion) {
       return res.status(409).json({ error: 'TODO item already closed.' });
-    }
+    };
   
     todo.description = req.body.newDescription;
     todo.deadline = req.body.newDeadline;
@@ -231,31 +231,32 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
   }
 })
 
-router.get("/TODO", checkToken, async(req, res) => {
+router.get('/TODO', checkToken, async (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
 
   try {
-    const user = await User.findById(decodedInfo._id);
+    const user = await User.findById(decodedInfo._id, { TODO: 1, _id: 0 });
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.'});
-    }
-  
-    const todos = user.TODO;
+    };
   
     const now = new Date();
-    const todosWithDeadlineStatus = todos.map(todo => {
-      const deadline = new Date(todo.deadline);
-      const isPastDeadline = deadline < now;
+    const TODOsWithDeadlineStatus = user.TODO.map(todo => {
+      const isPastDeadline = new Date(todo.deadline) < now;
       return {
-        ...todo.toObject(),
+        // ...todo.toObject(),
+        description: todo.description,
+        deadline: todo.deadline,
+        statusConclusion: todo.statusConclusion,
         isPastDeadline,
+        lastModification: todo.lastModification
       };
     });
   
-    return res.status(200).json(todosWithDeadlineStatus);
+    return res.status(200).json({TODOsWithDeadlineStatus});
   } catch (error) {
     return res.status(500).json({ error: 'Error fetching TODO items.' });
   }
