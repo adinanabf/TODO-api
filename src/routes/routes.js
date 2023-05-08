@@ -256,7 +256,7 @@ router.get('/TODO', checkToken, async (req, res) => {
       };
     });
   
-    return res.status(200).json({TODOsWithDeadlineStatus});
+    return res.status(200).json(TODOsWithDeadlineStatus);
   } catch (error) {
     return res.status(500).json({ error: 'Error fetching TODO items.' });
   }
