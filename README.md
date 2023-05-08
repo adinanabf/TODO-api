@@ -1,7 +1,5 @@
 # TODO API
 
-## Description
-
 The TODO API is a RESTful API that allows users to manage their to-do lists. It provides endpoints for user registration and login, visualization, creation, modification, and closure of TODO items.
 
 The user information is stored in a MongoDB database and is encrypted with bcrypt. Tokens are used for authorization of access to the TODO features. The API uses the Joi library for validation of the request bodies, and the jsonwebtoken library for token creation and verification.
