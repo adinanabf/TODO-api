@@ -34,12 +34,14 @@ const TODOEditSchema = Joi.object({
 router.post("/register", async (req, res) => {
     const { error } = registerSchema.validate(req.body);
 
-    if (error) return res.status(400).send(
-      error.details[0].message.replace('"','').replace('"', '')
-    );
+    if (error) return res.status(400).json({
+      error: error.details[0].message.replace('"','').replace('"', '')
+    });
 
     const emailExists = await User.findOne({ email: req.body.email });
-    if (emailExists) return res.status(400).send('Email already exists.');
+    if (emailExists) return res.status(400).json({
+      error: 'Email already exists.'
+    });
   
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
@@ -51,23 +53,27 @@ router.post("/register", async (req, res) => {
   
     try {
       await user.save();
-      res.status(201).send('User created successfully.');
+      res.status(201).json({ message: 'User created successfully.' });
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).json({ error: error });
     }
 });
 
 router.post("/login", async (req, res) => {
     const { error } = loginSchema.validate(req.body);
-    if (error) return res.status(400).send(
-      error.details[0].message.replace('"', '')
-    );
+    if (error) return res.status(400).json({
+      error: error.details[0].message.replace('"','').replace('"', '')
+    });
   
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).send('User not found.');
+    if (!user) return res.status(404).json({
+      error: 'User not found.'
+    });
     
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass) return res.status(422).send('Password incorrect.');
+    if (!validPass) return res.status(422).json({
+      error: 'Password incorrect.'
+    });
   
     try {
       const token = jwt.sign({
@@ -78,12 +84,14 @@ router.post("/login", async (req, res) => {
           expiresIn: "0.5hr"
         });
       res.header("auth-token", token).json({
-          msg: "You are successfully logged in.",
+          message: "You are successfully logged in.",
           token: token
         });
     } catch (error) {
       console.log(error);
-      res.status(500).send('Internal Server Error.');
+      res.status(500).json({
+        error: 'Internal Server Error.'
+      });
     }
   });
 
@@ -95,15 +103,15 @@ router.post("/TODO/create", checkToken, async(req, res) => {
 
   const { error } = TODOcreateSchema.validate(req.body);
 
-  if (error) return res.status(400).send(
-    error.details[0].message.replace('"','').replace('"', '')
-  );
+  if (error) return res.status(400).json({
+    error: error.details[0].message.replace('"','').replace('"', '')
+  });
 
   try {
     const user = await User.findById(decodedInfo._id);
   
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).json({ error: 'User not found.' });
     }
   
     const uniqueTODO = user.TODO.find(
@@ -111,24 +119,31 @@ router.post("/TODO/create", checkToken, async(req, res) => {
       );
   
     if (uniqueTODO) {
-      return res.status(409).send('The description must be unique.');
+      return res.status(409).json({
+        error: 'The description must be unique.'
+      });
     }
-  
-    const now = new Date();
-    const timestampISO = now.toISOString();
+
+    const status = req.body.statusConclusion !== undefined
+    ? req.body.statusConclusion
+    : false;
+
     const todo = {
       description: req.body.description,
       deadline: req.body.deadline,
-      statusConclusion: false,
-      lastModification: timestampISO
+      statusConclusion: status
     };
     user.TODO.push(todo);
   
     await user.save();
   
-    return res.status(201).send('TODO created successfully.');
+    return res.status(201).json({
+      message: 'TODO created successfully.'
+    });
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(400).json({
+      error: error.message
+    });
   }
 })
 
@@ -139,15 +154,15 @@ router.put("/TODO/close", checkToken, async(req, res) => {
 
   const { error } = TODOCloseSchema.validate(req.body);
 
-  if (error) return res.status(400).send(
-    error.details[0].message.replace('"','').replace('"', '')
-  );
+  if (error) return res.status(400).json({
+    error: error.details[0].message.replace('"','').replace('"', '')
+  });
 
   try {
     const user = await User.findById(decodedInfo._id);
   
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).json({ error: 'User not found.' });
     }
   
     const todo = user.TODO.find(
@@ -155,11 +170,11 @@ router.put("/TODO/close", checkToken, async(req, res) => {
       );
   
     if (!todo) {
-      return res.status(404).send('TODO item not found.');
+      return res.status(404).json({ error: 'TODO item not found.' });
     }
   
     if (todo.statusConclusion) {
-      return res.status(409).send('TODO item already closed.');
+      return res.status(409).json({ error: 'TODO item already closed.' });
     }
   
     todo.statusConclusion = true;
@@ -167,9 +182,10 @@ router.put("/TODO/close", checkToken, async(req, res) => {
   
     await user.save();
   
-    return res.status(200).send('TODO item closed successfully.');
+    return res.status(200).json({ message: 'TODO item closed successfully.' });
   } catch (error) {
-    return res.status(500).send('Error closing TODO item.');
+    console.log(error);
+    return res.status(500).json({ error: 'Error closing TODO item.' });
   }
 })
 
@@ -180,15 +196,15 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
 
   const { error } = TODOEditSchema.validate(req.body);
 
-  if (error) return res.status(400).send(
-    error.details[0].message.replace('"','').replace('"', '')
-  );
+  if (error) return res.status(400).json({
+    error: error.details[0].message.replace('"','').replace('"', '')
+  });
 
   try {
     const user = await User.findById(decodedInfo._id);
   
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).json({ error: 'User not found.' });
     }
   
     const todo = user.TODO.find(
@@ -196,11 +212,11 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
       );
   
     if (!todo) {
-      return res.status(404).send('TODO item not found.');
+      return res.status(404).json({ error: 'TODO item not found.' });
     }
   
     if (todo.statusConclusion) {
-      return res.status(409).send('TODO item already closed.');
+      return res.status(409).json({ error: 'TODO item already closed.' });
     }
   
     todo.description = req.body.newDescription;
@@ -209,9 +225,9 @@ router.put("/TODO/edit", checkToken, async(req, res) => {
   
     await user.save();
   
-    return res.status(200).send('TODO item updated successfully.');
+    return res.status(200).json({ message: 'TODO item updated successfully.' });
   } catch (error) {
-    return res.status(500).send('Error updating TODO item.');
+    return res.status(500).json({ error: 'Error updating TODO item.' });
   }
 })
 
@@ -220,13 +236,11 @@ router.get("/TODO", checkToken, async(req, res) => {
   const token = authHeader && authHeader.split(' ')[1];
   const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
 
-  const { error } = TODOEditSchema.validate(req.body);
-
   try {
     const user = await User.findById(decodedInfo._id);
   
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).json({ error: 'User not found.'});
     }
   
     const todos = user.TODO;
@@ -243,7 +257,7 @@ router.get("/TODO", checkToken, async(req, res) => {
   
     return res.status(200).json(todosWithDeadlineStatus);
   } catch (error) {
-    return res.status(500).send('Error fetching TODO items.');
+    return res.status(500).json({ error: 'Error fetching TODO items.' });
   }
 })
 
@@ -252,7 +266,9 @@ function checkToken(req, res, next){
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token){
-    return res.status(401).send('Access denied. Token missing or invalid.');
+    return res.status(401).json({ 
+      error: 'Access denied. Token missing or invalid.' 
+    });
   }
 
   try {
@@ -260,7 +276,9 @@ function checkToken(req, res, next){
     jwt.verify(token, secret);
     next ();
   } catch(error) {
-    res.status(401).send('Access denied. Token missing or invalid.');
+    res.status(401).json({
+      error: 'Access denied. Token missing or invalid.'
+    });
   }
 }
 
