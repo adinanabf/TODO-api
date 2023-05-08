@@ -17,8 +17,7 @@ const loginSchema = Joi.object({
 const TODOcreateSchema = Joi.object({
   description: Joi.string().min(0).max(255).required(),
   deadline: Joi.date().iso().required(),
-  statusConclusion: Joi.bool(),
-  datetimeConclusion: Joi.date().iso()
+  statusConclusion: Joi.bool()
 });
 
 const TODOCloseSchema = Joi.object({
@@ -27,8 +26,8 @@ const TODOCloseSchema = Joi.object({
 
 const TODOEditSchema = Joi.object({
   description: Joi.string().min(0).max(255).required(),
-  newDescription: Joi.string().min(0).max(255).required(),
-  newDeadline: Joi.date().iso().required()
+  newDescription: Joi.string().min(0).max(255),
+  newDeadline: Joi.date().iso()
 });
 
 router.post('/register', async (req, res) => {
@@ -83,7 +82,7 @@ router.post('/login', async (req, res) => {
         process.env.TOKEN_SECRET, {
           expiresIn: '0.5hr'
         });
-      res.header('auth-token', token).json({
+      res.header('auth-token', token).status(200).json({
           message: 'You are successfully logged in.',
           token: token
         });
@@ -219,8 +218,34 @@ router.put('/TODO/edit', checkToken, async (req, res) => {
       return res.status(409).json({ error: 'TODO item already closed.' });
     };
   
-    todo.description = req.body.newDescription;
-    todo.deadline = req.body.newDeadline;
+    if ( !('newDescription' in req.body)){
+      if (!('newDeadline' in req.body)){
+        return res.status(400).json({
+          error: 'There is no change to be made.' 
+        });
+      }
+    } else {
+      const anotherTODO = user.TODO.find(
+        item => item.description === req.body.newDescription
+        );
+
+      if (anotherTODO) {
+        return res.status(409).json({
+          error: 'The new description must be unique.'
+        });
+      }
+    }
+    
+    const description = req.body.newDescription !== undefined
+    ? req.body.newDescription
+    : todo.description;
+
+    const deadline = req.body.newDeadline !== undefined
+    ? req.body.newDeadline
+    : todo.deadline;
+
+    todo.description = description;
+    todo.deadline = deadline;
     todo.lastModification = new Date().toISOString();
   
     await user.save();
@@ -242,9 +267,9 @@ router.get('/TODO', checkToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found.'});
     };
-  
+
     const now = new Date();
-    const TODOsWithDeadlineStatus = user.TODO.map(todo => {
+    const TODOs = user.TODO.map(todo => {
       const isPastDeadline = new Date(todo.deadline) < now;
       return {
         // ...todo.toObject(),
@@ -256,7 +281,7 @@ router.get('/TODO', checkToken, async (req, res) => {
       };
     });
   
-    return res.status(200).json(TODOsWithDeadlineStatus);
+    return res.status(200).json({TODOs});
   } catch (error) {
     return res.status(500).json({ error: 'Error fetching TODO items.' });
   }

@@ -17,9 +17,6 @@ const TODO_Schema = new mongoose.Schema({
   },
   statusConclusion:{
     type: Boolean
-  },
-  datetimeConclusion:{
-    type: Date
   }
 });
 
