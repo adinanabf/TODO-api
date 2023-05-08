@@ -127,3 +127,4 @@ dist
 .pnp.*
 
 routes_send.js
+aloha.js
