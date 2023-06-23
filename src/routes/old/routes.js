@@ -1,9 +1,8 @@
 const router = require('express').Router();
-const User = require('../models/User');
+const User = require('../../models/User');
 const bcrypt = require('bcrypt');
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
-const TODO = require('../models/TODO');
 
 const registerSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -22,11 +21,11 @@ const TODOcreateSchema = Joi.object({
 });
 
 const TODOCloseSchema = Joi.object({
-  TODO_Id: Joi.string().length(24).required(),
+  description: Joi.string().min(0).max(255).required(),
 });
 
 const TODOEditSchema = Joi.object({
-  TODO_Id: Joi.string().length(24).required(),
+  description: Joi.string().min(0).max(255).required(),
   newDescription: Joi.string().min(0).max(255),
   newDeadline: Joi.date().iso()
 });
@@ -97,6 +96,10 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/TODO/create', checkToken, async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
   const { error } = TODOcreateSchema.validate(req.body);
 
   if (error) return res.status(400).json({
@@ -104,28 +107,37 @@ router.post('/TODO/create', checkToken, async (req, res) => {
   });
 
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(decodedInfo._id);
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
+    }
+  
+    const uniqueTODO = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (uniqueTODO) {
+      return res.status(409).json({
+        error: 'The description must be unique.'
+      });
     }
 
     const status = req.body.statusConclusion !== undefined
     ? req.body.statusConclusion
     : false;
 
-    const todo = new TODO({
-      userId: req.userId,
+    const todo = {
       description: req.body.description,
       deadline: req.body.deadline,
       statusConclusion: status
-    });
+    };
+    user.TODO.push(todo);
   
-    await todo.save();
-
+    await user.save();
+  
     return res.status(201).json({
-      message: 'TODO created successfully.',
-      TODO_Id: todo._id
+      message: 'TODO created successfully.'
     });
   } catch (error) {
     return res.status(400).json({
@@ -135,6 +147,10 @@ router.post('/TODO/create', checkToken, async (req, res) => {
 })
 
 router.put('/TODO/close', checkToken, async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
   const { error } = TODOCloseSchema.validate(req.body);
 
   if (error) return res.status(400).json({
@@ -142,21 +158,19 @@ router.put('/TODO/close', checkToken, async (req, res) => {
   });
 
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(decodedInfo._id);
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
-    }
-
-    if (!req.body.TODO_Id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(404).json({error: 'TODO item not found.'});
-    }
-
-    const todo = await TODO.findById(req.body.TODO_Id)
-
-    if (!todo) return res.status(404).json({
-      error: 'TODO item not found.'
-    });
+    };
+  
+    const todo = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (!todo) {
+      return res.status(404).json({ error: 'TODO item not found.' });
+    };
   
     if (todo.statusConclusion) {
       return res.status(409).json({ error: 'TODO item already closed.' });
@@ -165,7 +179,7 @@ router.put('/TODO/close', checkToken, async (req, res) => {
     todo.statusConclusion = true;
     todo.lastModification = new Date().toISOString();
   
-    await todo.save();
+    await user.save();
   
     return res.status(200).json({ message: 'TODO item closed successfully.' });
   } catch (error) {
@@ -175,6 +189,10 @@ router.put('/TODO/close', checkToken, async (req, res) => {
 })
 
 router.put('/TODO/edit', checkToken, async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
   const { error } = TODOEditSchema.validate(req.body);
 
   if (error) return res.status(400).json({
@@ -182,30 +200,41 @@ router.put('/TODO/edit', checkToken, async (req, res) => {
   });
 
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(decodedInfo._id);
   
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
-    }
-
-    if (!req.body.TODO_Id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(404).json({error: 'TODO item not found.'});
-    }
-
-    const todo = await TODO.findById(req.body.TODO_Id)
-
-    if (!todo) return res.status(404).json({
-      error: 'TODO item not found.'
-    });
+    };
+  
+    const todo = user.TODO.find(
+      item => item.description === req.body.description
+      );
+  
+    if (!todo) {
+      return res.status(404).json({ error: 'TODO item not found.' });
+    };
   
     if (todo.statusConclusion) {
       return res.status(409).json({ error: 'TODO item already closed.' });
     };
   
-    if (!('newDescription' in req.body) && !('newDeadline' in req.body)){
-      return res.status(400).json({
-        error: 'There is no change to be made.' 
-    })};
+    if ( !('newDescription' in req.body)){
+      if (!('newDeadline' in req.body)){
+        return res.status(400).json({
+          error: 'There is no change to be made.' 
+        });
+      }
+    } else {
+      const anotherTODO = user.TODO.find(
+        item => item.description === req.body.newDescription
+        );
+
+      if (anotherTODO) {
+        return res.status(409).json({
+          error: 'The new description must be unique.'
+        });
+      }
+    }
     
     const description = req.body.newDescription !== undefined
     ? req.body.newDescription
@@ -219,7 +248,7 @@ router.put('/TODO/edit', checkToken, async (req, res) => {
     todo.deadline = deadline;
     todo.lastModification = new Date().toISOString();
   
-    await todo.save();
+    await user.save();
   
     return res.status(200).json({ message: 'TODO item updated successfully.' });
   } catch (error) {
@@ -228,29 +257,30 @@ router.put('/TODO/edit', checkToken, async (req, res) => {
 })
 
 router.get('/TODO', checkToken, async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
+
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(decodedInfo._id, { TODO: 1, _id: 0 });
   
     if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
+      return res.status(404).json({ error: 'User not found.'});
+    };
 
     const now = new Date();
-
-    const TODOs = (await TODO.find({ userId: req.userId }).exec()).map(
-      todo => {
+    const TODOs = user.TODO.map(todo => {
       const isPastDeadline = new Date(todo.deadline) < now;
       return {
         // ...todo.toObject(),
-        TODO_Id: todo._id,
         description: todo.description,
         deadline: todo.deadline,
         statusConclusion: todo.statusConclusion,
         isPastDeadline,
         lastModification: todo.lastModification
-      }
-    })
-
+      };
+    });
+  
     return res.status(200).json({TODOs});
   } catch (error) {
     return res.status(500).json({ error: 'Error fetching TODO items.' });
@@ -268,8 +298,8 @@ function checkToken(req, res, next){
   }
 
   try {
-    const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
-    req.userId = decodedInfo._id;
+    const secret = process.env.TOKEN_SECRET;
+    jwt.verify(token, secret);
     next ();
   } catch(error) {
     res.status(401).json({

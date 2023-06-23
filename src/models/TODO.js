@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
-const TODO_Schema = new mongoose.Schema({
+const TODO = new mongoose.Schema({
+  userId: {
+    type: String,
+    min: 0,
+    max: 255
+  },
   description: {
     type: String,
     required: true,
@@ -20,4 +25,4 @@ const TODO_Schema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('TODOSchema', TODO_Schema);
+module.exports = mongoose.model('TODO', TODO);

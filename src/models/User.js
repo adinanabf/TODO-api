@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const TODOSchema = require('./TODO').schema
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -17,9 +16,6 @@ const userSchema = new mongoose.Schema({
   userCreation: {
     type: Date,
     default: Date.now
-  },
-  TODO: {
-    type: [TODOSchema]
   }
 });
 
