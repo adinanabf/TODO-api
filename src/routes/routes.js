@@ -16,22 +16,6 @@ const loginSchema = Joi.object({
   password: Joi.string().min(8).required(),
 });
 
-const TODOcreateSchema = Joi.object({
-  description: Joi.string().min(0).max(255).required(),
-  deadline: Joi.date().iso().required(),
-  statusConclusion: Joi.bool(),
-});
-
-const TODOCloseSchema = Joi.object({
-  TODO_Id: Joi.string().length(24).required(),
-});
-
-const TODOEditSchema = Joi.object({
-  TODO_Id: Joi.string().length(24).required(),
-  newDescription: Joi.string().min(0).max(255),
-  newDeadline: Joi.date().iso(),
-});
-
 const todoController = new TodoController();
 
 router.post("/register", async (req, res) => {
@@ -106,143 +90,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/TODO/create", checkToken, async (req, res) => {
-  const { error } = TODOcreateSchema.validate(req.body);
+router.post("/TODO/create", checkToken, todoController.createTodo);
 
-  if (error)
-    return res.status(400).json({
-      error: error.details[0].message.replace('"', "").replace('"', ""),
-    });
+router.put("/TODO/close", checkToken, todoController.closeTodo);
 
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    const status =
-      req.body.statusConclusion !== undefined
-        ? req.body.statusConclusion
-        : false;
-
-    const todo = new TODO({
-      userId: req.userId,
-      description: req.body.description,
-      deadline: req.body.deadline,
-      statusConclusion: status,
-    });
-
-    await todo.save();
-
-    return res.status(201).json({
-      message: "TODO created successfully.",
-      TODO_Id: todo._id,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
-
-router.put("/TODO/close", checkToken, async (req, res) => {
-  const { error } = TODOCloseSchema.validate(req.body);
-
-  if (error)
-    return res.status(400).json({
-      error: error.details[0].message.replace('"', "").replace('"', ""),
-    });
-
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    if (!req.body.TODO_Id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(404).json({ error: "TODO item not found." });
-    }
-
-    const todo = await TODO.findById(req.body.TODO_Id);
-
-    if (!todo)
-      return res.status(404).json({
-        error: "TODO item not found.",
-      });
-
-    if (todo.statusConclusion) {
-      return res.status(409).json({ error: "TODO item already closed." });
-    }
-
-    todo.statusConclusion = true;
-    todo.lastModification = new Date().toISOString();
-
-    await todo.save();
-
-    return res.status(200).json({ message: "TODO item closed successfully." });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Error closing TODO item." });
-  }
-});
-
-router.put("/TODO/edit", checkToken, async (req, res) => {
-  const { error } = TODOEditSchema.validate(req.body);
-
-  if (error)
-    return res.status(400).json({
-      error: error.details[0].message.replace('"', "").replace('"', ""),
-    });
-
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    if (!req.body.TODO_Id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(404).json({ error: "TODO item not found." });
-    }
-
-    const todo = await TODO.findById(req.body.TODO_Id);
-
-    if (!todo)
-      return res.status(404).json({
-        error: "TODO item not found.",
-      });
-
-    if (todo.statusConclusion) {
-      return res.status(409).json({ error: "TODO item already closed." });
-    }
-
-    if (!("newDescription" in req.body) && !("newDeadline" in req.body)) {
-      return res.status(400).json({
-        error: "There is no change to be made.",
-      });
-    }
-
-    const description =
-      req.body.newDescription !== undefined
-        ? req.body.newDescription
-        : todo.description;
-
-    const deadline =
-      req.body.newDeadline !== undefined ? req.body.newDeadline : todo.deadline;
-
-    todo.description = description;
-    todo.deadline = deadline;
-    todo.lastModification = new Date().toISOString();
-
-    await todo.save();
-
-    return res.status(200).json({ message: "TODO item updated successfully." });
-  } catch (error) {
-    return res.status(500).json({ error: "Error updating TODO item." });
-  }
-});
+router.put("/TODO/edit", checkToken, todoController.editTodo);
 
 router.get("/TODO", checkToken, todoController.listTodos);
 

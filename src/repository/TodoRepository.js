@@ -1,11 +1,33 @@
-const User = require("../models/User");
+const Todo = require("../models/TODO");
 
 class TodoRepository {
-  async findById(userId) {
-    const user = await User.findById(userId);
+  async getUserTodos(userId) {
+    const todos = await Todo.find({ userId: userId }).exec();
 
-    return user;
-  }
+    return todos;
+  };
+
+  async getTodo(todoId) {
+    const todo = await Todo.findById(todoId);
+
+    return todo;
+  };
+
+  async saveTodo(todo) {
+    return todo.save()
+  };
+
+  async createTodo(userId, description, deadline, statusConclusion) {
+    const todo = new Todo({
+      userId,
+      description,
+      deadline,
+      statusConclusion,
+    });
+
+    return todo;
+  };
+
 }
 
 module.exports = { TodoRepository };
