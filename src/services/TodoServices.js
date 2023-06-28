@@ -36,10 +36,6 @@ class TodoServices {
     const user = await verifyUserExistence(userId);
     if (!user) throw new Error("User not exists");
 
-    if (!todoId.match(/^[0-9a-fA-F]{24}$/)) {
-      return { status: 404, message: "TODO invalid." };
-    }
-
     const todoRepository = new TodoRepository();
 
     const todo = await todoRepository.getTodo(todoId);
@@ -99,10 +95,6 @@ class TodoServices {
       const user = await verifyUserExistence(userId);
 
       if (!user) throw new Error("User not exists");
-
-      if (!todoId.match(/^[0-9a-fA-F]{24}$/)) {
-        return { status: 404, message: "TODO invalid." };
-      }
 
       const todoRepository = new TodoRepository();
 

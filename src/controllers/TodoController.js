@@ -3,7 +3,7 @@ const { TodoServices } = require("../services/TodoServices");
 const todoServices = new TodoServices();
 
 const todoEditSchema = Joi.object({
-  todoId: Joi.string().length(24).required(),
+  todoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
   newDescription: Joi.string().min(0).max(255),
   newDeadline: Joi.date().iso(),
 });
@@ -15,7 +15,7 @@ const todoCreateSchema = Joi.object({
 });
 
 const todoCloseSchema = Joi.object({
-  todoId: Joi.string().length(24).required(),
+  todoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
 });
 
 class TodoController {
@@ -38,9 +38,7 @@ class TodoController {
 
     try {
       const { userId } = req;
-      const { todoId } = req.body;
-      const { newDescription } = req.body;
-      const { newDeadline } = req.body;
+      const { todoId, newDescription, newDeadline } = req.body;
 
       const result = await todoServices.editTodo(
         userId, todoId, newDescription, newDeadline
