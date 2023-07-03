@@ -1,9 +1,11 @@
 const Joi = require("@hapi/joi");
 const { TodoServices } = require("../services/TodoServices");
-const todoServices = new TodoServices();
+const { TodoRepository } = require("../repository/TodoRepository");
 
 const todoEditSchema = Joi.object({
-  todoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+  todoId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required(),
   newDescription: Joi.string().min(0).max(255),
   newDeadline: Joi.date().iso(),
 });
@@ -15,11 +17,16 @@ const todoCreateSchema = Joi.object({
 });
 
 const todoCloseSchema = Joi.object({
-  todoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+  todoId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required(),
 });
 
 class TodoController {
   async listTodos(req, res) {
+    const todoRepository = new TodoRepository();
+
+    const todoServices = new TodoServices({ todoRepository });
     try {
       const { userId } = req;
 
@@ -29,11 +36,11 @@ class TodoController {
     } catch (error) {
       return res.status(500).json({ error: error.toString() });
     }
-  };
-  
-  async editTodo(req, res){
+  }
+
+  async editTodo(req, res) {
     const { error } = todoEditSchema.validate(req.body);
-    
+
     if (error) return res.status(400).json({ error: error.toString() });
 
     try {
@@ -41,21 +48,23 @@ class TodoController {
       const { todoId, newDescription, newDeadline } = req.body;
 
       const result = await todoServices.editTodo(
-        userId, todoId, newDescription, newDeadline
+        userId,
+        todoId,
+        newDescription,
+        newDeadline
       );
 
       return res.status(result.status).json({ result });
-
     } catch (error) {
       return res.status(500).json({ error: "Error updating TODO item." });
     }
-  };
-  
-  async createTodo(req, res){
+  }
+
+  async createTodo(req, res) {
     const { error } = todoCreateSchema.validate(req.body);
-    
+
     if (error) return res.status(400).json({ error: error.toString() });
-    
+
     try {
       const { userId } = req;
       const { description } = req.body;
@@ -63,31 +72,32 @@ class TodoController {
       const { statusConclusion } = req.body;
 
       const result = await todoServices.createTodo(
-        userId, description, deadline, statusConclusion
+        userId,
+        description,
+        deadline,
+        statusConclusion
       );
-   
-      return res.status(result.status).json({ result });
 
+      return res.status(result.status).json({ result });
     } catch (error) {
-      return res.status(500).json({  error: error.toString() });
+      return res.status(500).json({ error: error.toString() });
     }
-  };
+  }
 
   async closeTodo(req, res) {
     const { error } = todoCloseSchema.validate(req.body);
-    
+
     if (error) return res.status(400).json({ error: error.toString() });
-    
+
     try {
       const { userId } = req;
       const { todoId } = req.body;
 
       const result = await todoServices.closeTodo(userId, todoId);
-   
-      return res.status(result.status).json({ result });
 
+      return res.status(result.status).json({ result });
     } catch (error) {
-      return res.status(500).json({  error: error.toString() });
+      return res.status(500).json({ error: error.toString() });
     }
   }
 }

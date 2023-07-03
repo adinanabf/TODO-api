@@ -4,33 +4,36 @@ const { TodoRepository } = require("../repository/TodoRepository");
 async function verifyUserExistence(userId) {
   const userRepository = new UserRepository();
   const user = await userRepository.findById(userId);
-  return user
+  return user;
 }
 
 class TodoServices {
+  constructor({ todoRepository }) {
+    this.todoRepository = todoRepository;
+  }
 
   async listTodos(userId) {
     const user = await verifyUserExistence(userId);
     if (!user) throw new Error("User not exists");
 
-    const todoRepository = new TodoRepository();
-
     const now = new Date();
 
-    const TODOs = (await todoRepository.getUserTodos(userId)).map((todo) => {
-      const isPastDeadline = new Date(todo.deadline) < now;
-      return {
-        todoId: todo._id,
-        description: todo.description,
-        deadline: todo.deadline,
-        statusConclusion: todo.statusConclusion,
-        isPastDeadline,
-        lastModification: todo.lastModification,
-      };
-    });
+    const TODOs = (await this.todoRepository.getUserTodos(userId)).map(
+      (todo) => {
+        const isPastDeadline = new Date(todo.deadline) < now;
+        return {
+          todoId: todo._id,
+          description: todo.description,
+          deadline: todo.deadline,
+          statusConclusion: todo.statusConclusion,
+          isPastDeadline,
+          lastModification: todo.lastModification,
+        };
+      }
+    );
 
     return TODOs;
-  };
+  }
 
   async editTodo(userId, todoId, newDescription, newDeadline) {
     const user = await verifyUserExistence(userId);
@@ -52,22 +55,19 @@ class TodoServices {
       return { status: 409, message: "TODO item already closed." };
     }
 
-    todo.description = newDescription !== undefined 
-      ? newDescription 
-      : todo.description;
-      
-    todo.deadline = newDeadline !== undefined 
-      ? newDeadline 
-      : todo.deadline;;
+    todo.description =
+      newDescription !== undefined ? newDescription : todo.description;
+
+    todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
 
     todo.lastModification = new Date().toISOString();
 
     await todoRepository.saveTodo(todo);
 
     return { status: 200, message: "TODO item updated successfully." };
-  };
+  }
 
-  async createTodo(userId, description, deadline, statusConclusion){
+  async createTodo(userId, description, deadline, statusConclusion) {
     const user = await verifyUserExistence(userId);
     if (!user) throw new Error("User not exists");
 
@@ -77,20 +77,19 @@ class TodoServices {
       userId,
       description,
       deadline,
-      statusConclusion !== undefined
-        ? statusConclusion
-        : false,
+      statusConclusion !== undefined ? statusConclusion : false
     );
-  
+
     await todoRepository.saveTodo(todo);
 
-    return { status: 201, 
-      message: "TODO created successfully.", 
-      todoId: todo._id 
-    }
-  };
+    return {
+      status: 201,
+      message: "TODO created successfully.",
+      todoId: todo._id,
+    };
+  }
 
-  async closeTodo(userId, todoId){
+  async closeTodo(userId, todoId) {
     try {
       const user = await verifyUserExistence(userId);
 
@@ -99,27 +98,26 @@ class TodoServices {
       const todoRepository = new TodoRepository();
 
       const todo = await todoRepository.getTodo(todoId);
-      
+
       if (!todo) {
         return { status: 404, message: "TODO item not found." };
       }
-  
+
       if (todo.statusConclusion) {
-        return { status: 409, message: "TODO item already closed." }
+        return { status: 409, message: "TODO item already closed." };
       }
-  
+
       todo.statusConclusion = true;
       todo.lastModification = new Date().toISOString();
-  
-      await todoRepository.saveTodo(todo);
-  
-      return { status: 200, message: "TODO item closed successfully." };
 
+      await todoRepository.saveTodo(todo);
+
+      return { status: 200, message: "TODO item closed successfully." };
     } catch (error) {
       console.log(error);
       return { status: 500, message: "Error closing TODO item." };
     }
-  };
+  }
 }
 
 module.exports = { TodoServices };
