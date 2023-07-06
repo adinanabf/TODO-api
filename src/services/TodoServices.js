@@ -39,9 +39,7 @@ class TodoServices {
     const user = await verifyUserExistence(userId);
     if (!user) throw new Error("User not exists");
 
-    const todoRepository = new TodoRepository();
-
-    const todo = await todoRepository.getTodo(todoId);
+    const todo = await this.todoRepository.getTodo(todoId);
 
     if (!todo) {
       return { status: 404, message: "TODO item not found." };
@@ -62,7 +60,7 @@ class TodoServices {
 
     todo.lastModification = new Date().toISOString();
 
-    await todoRepository.saveTodo(todo);
+    await this.todoRepository.saveTodo(todo);
 
     return { status: 200, message: "TODO item updated successfully." };
   }
@@ -71,16 +69,14 @@ class TodoServices {
     const user = await verifyUserExistence(userId);
     if (!user) throw new Error("User not exists");
 
-    const todoRepository = new TodoRepository();
-
-    const todo = await todoRepository.createTodo(
+    const todo = await (this.todoRepository.createTodo(
       userId,
       description,
       deadline,
       statusConclusion !== undefined ? statusConclusion : false
-    );
+    ));
 
-    await todoRepository.saveTodo(todo);
+    await this.todoRepository.saveTodo(todo);
 
     return {
       status: 201,
@@ -95,9 +91,9 @@ class TodoServices {
 
       if (!user) throw new Error("User not exists");
 
-      const todoRepository = new TodoRepository();
+      // const todoRepository = new TodoRepository();
 
-      const todo = await todoRepository.getTodo(todoId);
+      const todo = await this.todoRepository.getTodo(todoId);
 
       if (!todo) {
         return { status: 404, message: "TODO item not found." };
@@ -110,7 +106,7 @@ class TodoServices {
       todo.statusConclusion = true;
       todo.lastModification = new Date().toISOString();
 
-      await todoRepository.saveTodo(todo);
+      await this.todoRepository.saveTodo(todo);
 
       return { status: 200, message: "TODO item closed successfully." };
     } catch (error) {

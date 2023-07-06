@@ -25,8 +25,8 @@ const todoCloseSchema = Joi.object({
 class TodoController {
   async listTodos(req, res) {
     const todoRepository = new TodoRepository();
-
     const todoServices = new TodoServices({ todoRepository });
+
     try {
       const { userId } = req;
 
@@ -39,6 +39,9 @@ class TodoController {
   }
 
   async editTodo(req, res) {
+    const todoRepository = new TodoRepository();
+    const todoServices = new TodoServices({ todoRepository });
+
     const { error } = todoEditSchema.validate(req.body);
 
     if (error) return res.status(400).json({ error: error.toString() });
@@ -61,6 +64,9 @@ class TodoController {
   }
 
   async createTodo(req, res) {
+    const todoRepository = new TodoRepository();
+    const todoServices = new TodoServices({ todoRepository });
+
     const { error } = todoCreateSchema.validate(req.body);
 
     if (error) return res.status(400).json({ error: error.toString() });
@@ -80,11 +86,15 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ error: error.toString() });
     }
   }
 
   async closeTodo(req, res) {
+    const todoRepository = new TodoRepository();
+    const todoServices = new TodoServices({ todoRepository });
+
     const { error } = todoCloseSchema.validate(req.body);
 
     if (error) return res.status(400).json({ error: error.toString() });
