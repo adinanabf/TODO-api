@@ -171,7 +171,7 @@ describe('Private routes', () => {
                 .send({
                     description: "Math homework",
                     deadline: "2023-04-10",
-                    statusConclusion: true
+                    statusconclusion: true
                 })
                 .expect('Content-Type', /json/)
                 .expect(201);
@@ -495,7 +495,7 @@ describe('Private routes', () => {
                 .expect(200);
 
             expect(response.body.TODOs[0].description).toEqual('Clean the apartment');
-            expect(response.body.TODOs[0].statusConclusion).toEqual(true);
+            expect(response.body.TODOs[0].statusconclusion).toEqual(true);
             expect(response.body.TODOs[1].description).toEqual('Math homework');
             expect(Object.keys(response.body.TODOs).length).toEqual(2);
         });

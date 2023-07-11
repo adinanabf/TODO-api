@@ -1,6 +1,5 @@
 const Joi = require("@hapi/joi");
 const { UserServices } = require("../services/UserServices");
-const userServices = new UserServices();
 
 
 const registerSchema = Joi.object({
@@ -15,6 +14,15 @@ const loginSchema = Joi.object({
 
 class UserController {
   async createUser(req, res) {
+
+    const { UserRepository } =
+      req.headers.db === 'mongo' ? 
+      require("../repository/mongoDb/UserRepository") :
+      require("../repository/postgres/UserRepository")
+
+    const userRepository = new UserRepository;
+    const userServices = new UserServices({ userRepository });
+
     const { error } = registerSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.toString() });
 
@@ -28,6 +36,15 @@ class UserController {
   };
 
   async loginUser(req, res) {
+
+    const { UserRepository } =
+      req.headers.db === 'mongo' ? 
+      require("../repository/mongoDb/UserRepository") :
+      require("../repository/postgres/UserRepository")
+
+    const userRepository = new UserRepository;
+    const userServices = new UserServices({ userRepository });
+
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.toString() });
   

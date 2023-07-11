@@ -16,11 +16,11 @@ const TODO = new mongoose.Schema({
     type: Date,
     required: true
   },
-  lastModification:{
+  lastmodification:{
     type: Date,
     default: Date.now
   },
-  statusConclusion:{
+  statusconclusion:{
     type: Boolean
   }
 });

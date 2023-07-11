@@ -1,11 +1,11 @@
 const Joi = require("@hapi/joi");
 const { TodoServices } = require("../services/TodoServices");
-const { TodoRepository } = require("../repository/TodoRepository");
 
 const todoEditSchema = Joi.object({
-  todoId: Joi.string()
-    .regex(/^[0-9a-fA-F]{24}$/)
-    .required(),
+  // todoId: Joi.string()
+  //   .regex(/^[0-9a-fA-F]{24}$/)
+  //   .required(),
+  todoId: Joi.required(),
   newDescription: Joi.string().min(0).max(255),
   newDeadline: Joi.date().iso(),
 });
@@ -13,19 +13,30 @@ const todoEditSchema = Joi.object({
 const todoCreateSchema = Joi.object({
   description: Joi.string().min(0).max(255).required(),
   deadline: Joi.date().iso().required(),
-  statusConclusion: Joi.bool(),
+  statusconclusion: Joi.bool(),
 });
 
 const todoCloseSchema = Joi.object({
-  todoId: Joi.string()
-    .regex(/^[0-9a-fA-F]{24}$/)
-    .required(),
+  todoId: Joi.required(),
 });
 
 class TodoController {
+  
   async listTodos(req, res) {
+
+    const { TodoRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/TodoRepository") :
+    require("../repository/postgres/TodoRepository")
     const todoRepository = new TodoRepository();
-    const todoServices = new TodoServices({ todoRepository });
+
+    const { UserRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/UserRepository") :
+    require("../repository/postgres/UserRepository")
+    const userRepository = new UserRepository;
+    
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     try {
       const { userId } = req;
@@ -39,8 +50,20 @@ class TodoController {
   }
 
   async editTodo(req, res) {
+
+    const { TodoRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/TodoRepository") :
+    require("../repository/postgres/TodoRepository")
     const todoRepository = new TodoRepository();
-    const todoServices = new TodoServices({ todoRepository });
+
+    const { UserRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/UserRepository") :
+    require("../repository/postgres/UserRepository")
+    const userRepository = new UserRepository;
+  
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoEditSchema.validate(req.body);
 
@@ -64,8 +87,19 @@ class TodoController {
   }
 
   async createTodo(req, res) {
+    const { TodoRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/TodoRepository") :
+    require("../repository/postgres/TodoRepository")
     const todoRepository = new TodoRepository();
-    const todoServices = new TodoServices({ todoRepository });
+
+    const { UserRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/UserRepository") :
+    require("../repository/postgres/UserRepository")
+    const userRepository = new UserRepository;
+  
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCreateSchema.validate(req.body);
 
@@ -75,13 +109,13 @@ class TodoController {
       const { userId } = req;
       const { description } = req.body;
       const { deadline } = req.body;
-      const { statusConclusion } = req.body;
+      const { statusconclusion } = req.body;
 
       const result = await todoServices.createTodo(
         userId,
         description,
         deadline,
-        statusConclusion
+        statusconclusion
       );
 
       return res.status(result.status).json({ result });
@@ -92,8 +126,19 @@ class TodoController {
   }
 
   async closeTodo(req, res) {
+    const { TodoRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/TodoRepository") :
+    require("../repository/postgres/TodoRepository")
     const todoRepository = new TodoRepository();
-    const todoServices = new TodoServices({ todoRepository });
+
+    const { UserRepository } =
+    req.headers.db === 'mongo' ? 
+    require("../repository/mongoDb/UserRepository") :
+    require("../repository/postgres/UserRepository")
+    const userRepository = new UserRepository;
+  
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCloseSchema.validate(req.body);
 

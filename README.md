@@ -63,7 +63,7 @@ Creates a new TODO item.
 
 - `description` (required): Unique and not null string.
 - `deadline` (required): Valid date in ISO format.
-- `statusConclusion` (optional): Boolean.
+- `statusconclusion` (optional): Boolean.
 
 #### Response
 
@@ -107,7 +107,7 @@ Closes a TODO item.
 
 #### Response
 
-The endpoint updates the item's statusConclusion to true and returns a 200 status code if the item is successfully closed, or an error message if the item is not found, the item is already closed, or if there is a server error.
+The endpoint updates the item's statusconclusion to true and returns a 200 status code if the item is successfully closed, or an error message if the item is not found, the item is already closed, or if there is a server error.
 
 ```json
 {
@@ -127,16 +127,16 @@ This route retrieves a list of all TODOs. No parameters are required. Authentica
     {
       "description": "Math homework",
       "deadline": "2023-05-14T00:00:00.000Z",
-      "statusConclusion": false,
+      "statusconclusion": false,
       "isPastDeadline": false,
-      "lastModification": "2023-05-08T02:49:32.263Z"
+      "lastmodification": "2023-05-08T02:49:32.263Z"
     },
     {
       "description": "Clean the house",
       "deadline": "2023-05-07T00:00:00.000Z",
-      "statusConclusion": true,
+      "statusconclusion": true,
       "isPastDeadline": true,
-      "lastModification": "2023-05-08T02:49:53.586Z"
+      "lastmodification": "2023-05-08T02:49:53.586Z"
     }
   ]
 }

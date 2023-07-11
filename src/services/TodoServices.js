@@ -1,19 +1,11 @@
-const { UserRepository } = require("../repository/UserRepository");
-const { TodoRepository } = require("../repository/TodoRepository");
-
-async function verifyUserExistence(userId) {
-  const userRepository = new UserRepository();
-  const user = await userRepository.findById(userId);
-  return user;
-}
-
 class TodoServices {
-  constructor({ todoRepository }) {
+  constructor({ todoRepository, userRepository }) {
     this.todoRepository = todoRepository;
+    this.userRepository = userRepository;
   }
 
   async listTodos(userId) {
-    const user = await verifyUserExistence(userId);
+    const user = await this.userRepository.findById(userId);
     if (!user) throw new Error("User not exists");
 
     const now = new Date();
@@ -22,12 +14,12 @@ class TodoServices {
       (todo) => {
         const isPastDeadline = new Date(todo.deadline) < now;
         return {
-          todoId: todo._id,
+          todoId: todo.id,
           description: todo.description,
           deadline: todo.deadline,
-          statusConclusion: todo.statusConclusion,
+          statusconclusion: todo.statusconclusion,
           isPastDeadline,
-          lastModification: todo.lastModification,
+          lastmodification: todo.lastmodification,
         };
       }
     );
@@ -36,7 +28,7 @@ class TodoServices {
   }
 
   async editTodo(userId, todoId, newDescription, newDeadline) {
-    const user = await verifyUserExistence(userId);
+    const user = await this.userRepository.findById(userId);
     if (!user) throw new Error("User not exists");
 
     const todo = await this.todoRepository.getTodo(todoId);
@@ -49,7 +41,7 @@ class TodoServices {
       return { status: 400, message: "There is no change to be made." };
     }
 
-    if (todo.statusConclusion) {
+    if (todo.statusconclusion) {
       return { status: 409, message: "TODO item already closed." };
     }
 
@@ -58,40 +50,35 @@ class TodoServices {
 
     todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
 
-    todo.lastModification = new Date().toISOString();
+    todo.lastmodification = new Date().toISOString();
 
     await this.todoRepository.saveTodo(todo);
 
     return { status: 200, message: "TODO item updated successfully." };
   }
 
-  async createTodo(userId, description, deadline, statusConclusion) {
-    const user = await verifyUserExistence(userId);
+  async createTodo(userId, description, deadline, statusconclusion) {
+    const user = await this.userRepository.findById(userId);
     if (!user) throw new Error("User not exists");
 
-    const todo = await (this.todoRepository.createTodo(
+    const todo = await this.todoRepository.createTodo(
       userId,
       description,
       deadline,
-      statusConclusion !== undefined ? statusConclusion : false
-    ));
-
-    await this.todoRepository.saveTodo(todo);
+      statusconclusion !== undefined ? statusconclusion : false
+    );
 
     return {
       status: 201,
       message: "TODO created successfully.",
-      todoId: todo._id,
+      todoId: todo.id,
     };
   }
 
   async closeTodo(userId, todoId) {
     try {
-      const user = await verifyUserExistence(userId);
-
+      const user = await this.userRepository.findById(userId);
       if (!user) throw new Error("User not exists");
-
-      // const todoRepository = new TodoRepository();
 
       const todo = await this.todoRepository.getTodo(todoId);
 
@@ -99,19 +86,19 @@ class TodoServices {
         return { status: 404, message: "TODO item not found." };
       }
 
-      if (todo.statusConclusion) {
+      if (todo.statusconclusion) {
         return { status: 409, message: "TODO item already closed." };
       }
 
-      todo.statusConclusion = true;
-      todo.lastModification = new Date().toISOString();
+      todo.statusconclusion = true;
+      todo.lastmodification = new Date().toISOString();
 
       await this.todoRepository.saveTodo(todo);
 
       return { status: 200, message: "TODO item closed successfully." };
     } catch (error) {
       console.log(error);
-      return { status: 500, message: "Error closing TODO item." };
+      return { status: 500, message: error.toString() };
     }
   }
 }

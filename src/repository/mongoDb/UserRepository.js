@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../../models/mongoDb/User");
 
 class UserRepository {
   async findById(userId) {
