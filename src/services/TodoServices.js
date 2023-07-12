@@ -1,3 +1,5 @@
+const AppError = require("../error/AppError");
+
 class TodoServices {
   constructor({ todoRepository, userRepository }) {
     this.todoRepository = todoRepository;
@@ -42,7 +44,9 @@ class TodoServices {
     }
 
     if (todo.statusconclusion) {
-      return { status: 409, message: "TODO item already closed." };
+      // return { status: 409, message: "TODO item already closed." };
+
+      throw new AppError("There is no change to be made.");
     }
 
     todo.description =
