@@ -5,7 +5,7 @@ class UserRepository {
     if (!isNaN(userId)) {
       const client = await database.getConnection();
 
-      const query = 'SELECT * FROM users WHERE id = $1';
+      const query = 'SELECT * FROM todo_api.user WHERE id = $1';
       const values = [userId];
       const user = await client.query(query, values);
 
@@ -18,7 +18,7 @@ class UserRepository {
   async findByEmail(email) {
     const client = await database.getConnection();
 
-    const query = 'SELECT * FROM users WHERE email = $1';
+    const query = 'SELECT * FROM todo_api.user WHERE email = $1';
     const values = [email];
     const user = await client.query(query, values);
     return user.rows[0];
@@ -30,7 +30,7 @@ class UserRepository {
   };
 
   async createUser(email, hashPassword) {
-    const query = "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *";
+    const query = "INSERT INTO todo_api.user (email, password) VALUES ($1, $2) RETURNING *";
     const values = [email, hashPassword];
 
     const result = await this.saveUser(query, values);
