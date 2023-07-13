@@ -9,6 +9,7 @@ class UserRepository {
       const values = [userId];
       const user = await client.query(query, values);
 
+      client.end()
       return user.rows[0];
     } else {
       return
@@ -21,6 +22,7 @@ class UserRepository {
     const query = 'SELECT * FROM todo_api.user WHERE email = $1';
     const values = [email];
     const user = await client.query(query, values);
+    client.end()
     return user.rows[0];
   };
 
@@ -34,6 +36,7 @@ class UserRepository {
     const values = [email, hashPassword];
 
     const result = await this.saveUser(query, values);
+    client.end()
     return result.rows[0];
   }
 }

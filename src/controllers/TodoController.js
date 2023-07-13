@@ -1,5 +1,6 @@
 const Joi = require("@hapi/joi");
 const { TodoServices } = require("../services/TodoServices");
+const AppError = require("../error/AppError");
 
 const todoEditSchema = Joi.object({
   // todoId: Joi.string()
@@ -45,7 +46,7 @@ class TodoController {
 
       return res.status(200).json({ result });
     } catch (error) {
-      return res.status(500).json({ error: error.toString() });
+      throw new AppError(error.toString(), 500)
     }
   }
 
@@ -66,8 +67,7 @@ class TodoController {
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoEditSchema.validate(req.body);
-
-    if (error) return res.status(400).json({ error: error.toString() });
+    if (error) throw new AppError(error.toString(), 400)
 
     try {
       const { userId } = req;
@@ -82,7 +82,7 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
-      return res.status(500).json({ error: "Error updating TODO item." });
+      throw new AppError("Error updating TODO item.", 500)
     }
   }
 
@@ -103,7 +103,7 @@ class TodoController {
 
     const { error } = todoCreateSchema.validate(req.body);
 
-    if (error) return res.status(400).json({ error: error.toString() });
+    if (error) throw new AppError(error.toString(), 500)
 
     try {
       const { userId } = req;
@@ -121,7 +121,7 @@ class TodoController {
       return res.status(result.status).json({ result });
     } catch (error) {
       console.log(error)
-      return res.status(500).json({ error: error.toString() });
+      throw new AppError(error.toString())
     }
   }
 
@@ -141,8 +141,7 @@ class TodoController {
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCloseSchema.validate(req.body);
-
-    if (error) return res.status(400).json({ error: error.toString() });
+    if (error) throw new AppError(error.toString(), 400)
 
     try {
       const { userId } = req;
@@ -152,7 +151,7 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
-      return res.status(500).json({ error: error.toString() });
+      throw new AppError(error.toString(), 500)
     }
   }
 }

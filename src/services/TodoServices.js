@@ -8,7 +8,7 @@ class TodoServices {
 
   async listTodos(userId) {
     const user = await this.userRepository.findById(userId);
-    if (!user) throw new Error("User not exists");
+    if (!user) throw new AppError("User not exists", 404);
 
     const now = new Date();
 
@@ -31,22 +31,20 @@ class TodoServices {
 
   async editTodo(userId, todoId, newDescription, newDeadline) {
     const user = await this.userRepository.findById(userId);
-    if (!user) throw new Error("User not exists");
+    if (!user) throw new AppError("User not exists", 404);
 
     const todo = await this.todoRepository.getTodo(todoId);
 
     if (!todo) {
-      return { status: 404, message: "TODO item not found." };
+      throw new AppError("TODO item not found.", 404);
     }
 
     if (!newDescription && !newDeadline) {
-      return { status: 400, message: "There is no change to be made." };
+      throw new AppError("There is no change to be made", 400)
     }
 
     if (todo.statusconclusion) {
-      // return { status: 409, message: "TODO item already closed." };
-
-      throw new AppError("There is no change to be made.");
+      throw new AppError("TODO item already closed.", 409);
     }
 
     todo.description =
@@ -82,16 +80,16 @@ class TodoServices {
   async closeTodo(userId, todoId) {
     try {
       const user = await this.userRepository.findById(userId);
-      if (!user) throw new Error("User not exists");
+      if (!user) throw new AppError("User not exists");
 
       const todo = await this.todoRepository.getTodo(todoId);
 
       if (!todo) {
-        return { status: 404, message: "TODO item not found." };
+      throw new AppError("TODO item not found.", 404);
       }
 
       if (todo.statusconclusion) {
-        return { status: 409, message: "TODO item already closed." };
+      throw new AppError("TODO item already closed.", 409);
       }
 
       todo.statusconclusion = true;
@@ -102,7 +100,7 @@ class TodoServices {
       return { status: 200, message: "TODO item closed successfully." };
     } catch (error) {
       console.log(error);
-      return { status: 500, message: error.toString() };
+      throw new AppError(error.toString(), 500);
     }
   }
 }

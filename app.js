@@ -1,9 +1,10 @@
 const express = require("express");
-
+require("express-async-errors");
 const routes = require("./src/routes/routes");
-const AppError = require("./src/error/AppError");
-
 const app = express();
+
+require('./src/db/mongoose')
+require('./src/db/postgres');
 
 app.use(express.json());
 
@@ -14,7 +15,9 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use((err, _req, res, _next) => {
+app.use("/api", routes);
+
+app.use((err, _, res, __) => {
   if (err.statusCode) {
     return res.status(err.statusCode).json({
       message: err.message,
@@ -25,7 +28,5 @@ app.use((err, _req, res, _next) => {
     message: "Internal server error",
   });
 });
-
-app.use("/api", routes);
 
 module.exports = app;
