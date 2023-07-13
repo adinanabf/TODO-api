@@ -1,6 +1,7 @@
 const Joi = require("@hapi/joi");
 const { TodoServices } = require("../services/TodoServices");
 const AppError = require("../error/AppError");
+const TodoRepositoryFactory = require("../repository/TodoRepositoryFactory");
 
 const todoEditSchema = Joi.object({
   // todoId: Joi.string()
@@ -22,21 +23,19 @@ const todoCloseSchema = Joi.object({
 });
 
 class TodoController {
-  
   async listTodos(req, res) {
-
     const { TodoRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/TodoRepository") :
-    require("../repository/postgres/TodoRepository")
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/TodoRepository")
+        : require("../repository/postgres/TodoRepository");
     const todoRepository = new TodoRepository();
 
     const { UserRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/UserRepository") :
-    require("../repository/postgres/UserRepository")
-    const userRepository = new UserRepository;
-    
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/UserRepository")
+        : require("../repository/postgres/UserRepository");
+    const userRepository = new UserRepository();
+
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     try {
@@ -46,28 +45,25 @@ class TodoController {
 
       return res.status(200).json({ result });
     } catch (error) {
-      throw new AppError(error.toString(), 500)
+      throw new AppError(error.toString(), 500);
     }
   }
 
   async editTodo(req, res) {
+    const { db } = req.headers;
 
-    const { TodoRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/TodoRepository") :
-    require("../repository/postgres/TodoRepository")
-    const todoRepository = new TodoRepository();
+    const todoRepository = TodoRepositoryFactory.createInstance({ db });
 
     const { UserRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/UserRepository") :
-    require("../repository/postgres/UserRepository")
-    const userRepository = new UserRepository;
-  
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/UserRepository")
+        : require("../repository/postgres/UserRepository");
+    const userRepository = new UserRepository();
+
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoEditSchema.validate(req.body);
-    if (error) throw new AppError(error.toString(), 400)
+    if (error) throw new AppError(error.toString(), 400);
 
     try {
       const { userId } = req;
@@ -82,28 +78,28 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
-      throw new AppError("Error updating TODO item.", 500)
+      throw new AppError("Error updating TODO item.", 500);
     }
   }
 
   async createTodo(req, res) {
     const { TodoRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/TodoRepository") :
-    require("../repository/postgres/TodoRepository")
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/TodoRepository")
+        : require("../repository/postgres/TodoRepository");
     const todoRepository = new TodoRepository();
 
     const { UserRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/UserRepository") :
-    require("../repository/postgres/UserRepository")
-    const userRepository = new UserRepository;
-  
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/UserRepository")
+        : require("../repository/postgres/UserRepository");
+    const userRepository = new UserRepository();
+
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCreateSchema.validate(req.body);
 
-    if (error) throw new AppError(error.toString(), 500)
+    if (error) throw new AppError(error.toString(), 500);
 
     try {
       const { userId } = req;
@@ -120,28 +116,28 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
-      console.log(error)
-      throw new AppError(error.toString())
+      console.log(error);
+      throw new AppError(error.toString());
     }
   }
 
   async closeTodo(req, res) {
     const { TodoRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/TodoRepository") :
-    require("../repository/postgres/TodoRepository")
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/TodoRepository")
+        : require("../repository/postgres/TodoRepository");
     const todoRepository = new TodoRepository();
 
     const { UserRepository } =
-    req.headers.db === 'mongo' ? 
-    require("../repository/mongoDb/UserRepository") :
-    require("../repository/postgres/UserRepository")
-    const userRepository = new UserRepository;
-  
+      req.headers.db === "mongo"
+        ? require("../repository/mongoDb/UserRepository")
+        : require("../repository/postgres/UserRepository");
+    const userRepository = new UserRepository();
+
     const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCloseSchema.validate(req.body);
-    if (error) throw new AppError(error.toString(), 400)
+    if (error) throw new AppError(error.toString(), 400);
 
     try {
       const { userId } = req;
@@ -151,7 +147,7 @@ class TodoController {
 
       return res.status(result.status).json({ result });
     } catch (error) {
-      throw new AppError(error.toString(), 500)
+      throw new AppError(error.toString(), 500);
     }
   }
 }
