@@ -1,6 +1,7 @@
 const Joi = require("@hapi/joi");
 const { UserServices } = require("../services/UserServices");
-
+const AppError = require("../error/AppError");
+const UserRepositoryFactory = require("../repository/UserRepositoryFactory");
 
 const registerSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -14,52 +15,37 @@ const loginSchema = Joi.object({
 
 class UserController {
   async createUser(req, res) {
+    const { db } = req.headers;
 
-    const { UserRepository } =
-      req.headers.db === 'mongo' ? 
-      require("../repository/mongoDb/UserRepository") :
-      require("../repository/postgres/UserRepository")
+    const userRepository = await UserRepositoryFactory.createInstance({ db });
 
-    const userRepository = new UserRepository;
     const userServices = new UserServices({ userRepository });
 
     const { error } = registerSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.toString() });
+    if (error) throw new AppError(error.toString())
 
-    try {
-      const { email, password } = req.body;
-      const result = await userServices.createUser(email, password)
-      return res.status(result.status).json({ result });
-    } catch (error) {
-      return res.status(500).json({  error: error.toString() });
-    }
+    const { email, password } = req.body;
+    const result = await userServices.createUser(email, password)
+    return res.status(result.status).json({ result });
   };
 
   async loginUser(req, res) {
+    const { db } = req.headers;
 
-    const { UserRepository } =
-      req.headers.db === 'mongo' ? 
-      require("../repository/mongoDb/UserRepository") :
-      require("../repository/postgres/UserRepository")
-
-    const userRepository = new UserRepository;
+    const userRepository = await UserRepositoryFactory.createInstance({ db });
+    
     const userServices = new UserServices({ userRepository });
 
     const { error } = loginSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.toString() });
+    if (error) throw new AppError(error.toString())
   
-    try {
-      const { email, password } = req.body;
-      const result = await userServices.loginUser(email, password);
+    const { email, password } = req.body;
+    const result = await userServices.loginUser(email, password);
 
-      if (result.token) {
-        return res.header("auth-token", result.token).status(result.status).json(result);
-      } else {
-        return res.status(result.status).json(result);
-      }
-      
-    } catch (error) {
-      return res.status(500).json({ error: error.toString() })
+    if (result.token) {
+      return res.header("auth-token", result.token).status(result.status).json(result);
+    } else {
+      return res.status(result.status).json(result);
     }
   }
 }

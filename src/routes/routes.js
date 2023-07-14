@@ -24,9 +24,6 @@ function checkToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
     throw new AppError("Access denied. Token missing or invalid.", 401)
-    // return res.status(401).json({
-    //   error: "Access denied. Token missing or invalid.",
-    // });
   }
 
   try {
@@ -35,9 +32,6 @@ function checkToken(req, res, next) {
     next();
   } catch (error) {
     throw new AppError("Access denied. Token missing or invalid.", 401)
-    // res.status(401).json({
-    //   error: "Access denied. Token missing or invalid.",
-    // });
   }
 }
 

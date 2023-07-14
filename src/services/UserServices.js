@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const AppError = require("../error/AppError");
 
 class UserServices {
   constructor({ userRepository }) {
@@ -8,23 +9,26 @@ class UserServices {
 
   async createUser(email, password) {
     const emailExists = await this.userRepository.findByEmail(email);
-    if (emailExists) return { status: 409, message: "Email already exists." };
-  
+    if (emailExists) throw new AppError("Email already exists.", 409)
+    
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    await this.userRepository.createUser(email, hashPassword);
-
-    return { status: 201, message: "User created successfully." }
+    try {
+      await this.userRepository.createUser(email, hashPassword);
+      return { status: 201, message: "User created successfully." }
+    } catch(error) {
+      throw new AppError(error, 500)
+    }
   };
 
   async loginUser(email, password) {
     const user = await this.userRepository.findByEmail(email);
 
-    if (!user) return { status: 404, message: "User not found." };
+    if (!user) throw new AppError("User not found.", 404)
   
     const validPass = await bcrypt.compare(password, user.password);
-    if (!validPass) return { status: 401, message: "Password incorrect." };
+    if (!validPass) throw new AppError("Password incorrect.", 401)
     
     const token = jwt.sign(
       {  _id: user.id, email: user.email },

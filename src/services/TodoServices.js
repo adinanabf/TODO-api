@@ -47,34 +47,42 @@ class TodoServices {
       throw new AppError("TODO item already closed.", 409);
     }
 
-    todo.description =
-      newDescription !== undefined ? newDescription : todo.description;
+    try {
+      todo.description =
+        newDescription !== undefined ? newDescription : todo.description;
 
-    todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
+      todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
 
-    todo.lastmodification = new Date().toISOString();
+      todo.lastmodification = new Date().toISOString();
 
-    await this.todoRepository.saveTodo(todo);
+      await this.todoRepository.saveTodo(todo);
 
-    return { status: 200, message: "TODO item updated successfully." };
+      return { status: 200, message: "TODO item updated successfully." };
+    } catch (error) {
+      throw new AppError("Error updating TODO item.", 500);
+    }
   }
 
   async createTodo(userId, description, deadline, statusconclusion) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new Error("User not exists");
-
-    const todo = await this.todoRepository.createTodo(
-      userId,
-      description,
-      deadline,
-      statusconclusion !== undefined ? statusconclusion : false
-    );
-
-    return {
-      status: 201,
-      message: "TODO created successfully.",
-      todoId: todo.id,
-    };
+    try {
+      const user = await this.userRepository.findById(userId);
+      if (!user) throw new Error("User not exists");
+  
+      const todo = await this.todoRepository.createTodo(
+        userId,
+        description,
+        deadline,
+        statusconclusion !== undefined ? statusconclusion : false
+      );
+  
+      return {
+        status: 201,
+        message: "TODO created successfully.",
+        todoId: todo.id,
+      };
+    } catch(error) {
+      throw new AppError(error.message)
+    }
   }
 
   async closeTodo(userId, todoId) {
