@@ -11,10 +11,8 @@ class TodoRepositoryFactory {
     let repository;
 
     if (db === "mongo"){
-      console.log("mg")
       repository = new MongoTodoRepository();
     } else {
-      console.log("pg")
       repository = new PostgresTodoRepository();
     }
 

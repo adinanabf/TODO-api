@@ -12,10 +12,8 @@ class UserRepositoryFactory {
     let repository;
 
     if (db === "mongo"){
-      console.log("mg")
       repository = new MongoUserRepository();
     } else {
-      console.log("pg")
       repository = new PostgresUserRepository();
     }
 
