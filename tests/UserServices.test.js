@@ -63,4 +63,37 @@ describe("User Services test", () => {
       new AppError("Email already exists.", 409)
     );
   });
+
+  it("Should not be possible to login with an unexistent user", async () => {
+    const email = "peter@marvel.com";
+    const password = "spider";
+
+    await expect(userServices.loginUser(email, password)).rejects.toEqual(
+      new AppError("User not found.", 404)
+    );
+  });
+
+  it("Should not be possible to login with an incorrect password", async () => {
+    const email = "peter@marvel.com";
+    const password = "spider";
+    const wrong_password = "spiderman";
+
+    await userServices.createUser(email, password);
+
+    await expect(userServices.loginUser(email, wrong_password)).rejects.toEqual(
+      new AppError("Password incorrect.", 401)
+    );
+  });
+
+  it("Should be possible to login", async () => {
+    const email = "peter@marvel.com";
+    const password = "spider";
+
+    await userServices.createUser(email, password);
+    const loginUser = await userServices.loginUser(email, password);
+
+    expect(loginUser.message).toStrictEqual("You are successfully logged in.");
+    expect(loginUser.status).toStrictEqual(200);
+    expect(loginUser).toHaveProperty("token")
+  });
 });

@@ -2,6 +2,7 @@ const express = require("express");
 require("express-async-errors");
 const routes = require("./routes/routes");
 const app = express();
+require('dotenv').config();
 
 require('./db/mongoose')
 require('./db/postgres');
