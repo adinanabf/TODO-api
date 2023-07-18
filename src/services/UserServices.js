@@ -15,8 +15,8 @@ class UserServices {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    await this.userRepository.createUser(email, hashPassword);
-    return { status: 201, message: "User created successfully." };
+    const user = await this.userRepository.createUser(email, hashPassword);
+    return { status: 201, message: "User created successfully.", userId: user.id };
   };
 
   async loginUser(email, password) {

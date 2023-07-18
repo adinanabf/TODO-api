@@ -8,7 +8,7 @@ class TodoServices {
 
   async listTodos(userId) {
     const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists", 404);
+    if (!user) throw new AppError("User not exists.", 401);
 
     const now = new Date();
 
@@ -31,7 +31,7 @@ class TodoServices {
 
   async editTodo(userId, todoId, newDescription, newDeadline) {
     const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists", 404);
+    if (!user) throw new AppError("User not exists.", 401);
 
     const todo = await this.todoRepository.getTodo(todoId);
 
@@ -40,76 +40,63 @@ class TodoServices {
     }
 
     if (!newDescription && !newDeadline) {
-      throw new AppError("There is no change to be made", 400)
+      throw new AppError("There is no change to be made.", 400)
     }
 
     if (todo.statusconclusion) {
       throw new AppError("TODO item already closed.", 409);
     }
 
-    try {
-      todo.description =
-        newDescription !== undefined ? newDescription : todo.description;
+    todo.description =
+      newDescription !== undefined ? newDescription : todo.description;
 
-      todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
+    todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
 
-      todo.lastmodification = new Date().toISOString();
+    todo.lastmodification = new Date().toISOString();
 
-      await this.todoRepository.saveTodo(todo);
+    await this.todoRepository.saveTodo(todo);
 
-      return { status: 200, message: "TODO item updated successfully." };
-    } catch (error) {
-      throw new AppError("Error updating TODO item.", 500);
-    }
+    return { status: 200, message: "TODO item updated successfully." };
   }
 
   async createTodo(userId, description, deadline, statusconclusion) {
-    try {
-      const user = await this.userRepository.findById(userId);
-      if (!user) throw new Error("User not exists");
-  
-      const todo = await this.todoRepository.createTodo(
-        userId,
-        description,
-        deadline,
-        statusconclusion !== undefined ? statusconclusion : false
-      );
-  
-      return {
-        status: 201,
-        message: "TODO created successfully.",
-        todoId: todo.id,
-      };
-    } catch(error) {
-      throw new AppError(error.message)
-    }
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new AppError("User not exists.", 401);
+
+    const todo = await this.todoRepository.createTodo(
+      userId,
+      description,
+      deadline,
+      statusconclusion !== undefined ? statusconclusion : false
+    );
+
+    return {
+      status: 201,
+      message: "TODO created successfully.",
+      todoId: todo.id,
+    };
   }
 
   async closeTodo(userId, todoId) {
-    try {
-      const user = await this.userRepository.findById(userId);
-      if (!user) throw new AppError("User not exists");
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new AppError("User not exists.", 401);
 
-      const todo = await this.todoRepository.getTodo(todoId);
+    const todo = await this.todoRepository.getTodo(todoId);
 
-      if (!todo) {
+    if (!todo) {
       throw new AppError("TODO item not found.", 404);
-      }
-
-      if (todo.statusconclusion) {
-      throw new AppError("TODO item already closed.", 409);
-      }
-
-      todo.statusconclusion = true;
-      todo.lastmodification = new Date().toISOString();
-
-      await this.todoRepository.saveTodo(todo);
-
-      return { status: 200, message: "TODO item closed successfully." };
-    } catch (error) {
-      console.log(error);
-      throw new AppError(error.toString(), 500);
     }
+
+    if (todo.statusconclusion) {
+      throw new AppError("TODO item already closed.", 409);
+    }
+
+    todo.statusconclusion = true;
+    todo.lastmodification = new Date().toISOString();
+
+    await this.todoRepository.saveTodo(todo);
+
+    return { status: 200, message: "TODO item closed successfully." };
   }
 }
 
