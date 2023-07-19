@@ -7,9 +7,6 @@ class TodoServices {
   }
 
   async listTodos(userId) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists.", 401);
-
     const now = new Date();
 
     const TODOs = (await this.todoRepository.getUserTodos(userId)).map(
@@ -29,10 +26,7 @@ class TodoServices {
     return TODOs;
   }
 
-  async editTodo(userId, todoId, newDescription, newDeadline) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists.", 401);
-
+  async editTodo(todoId, newDescription, newDeadline) {
     const todo = await this.todoRepository.getTodo(todoId);
 
     if (!todo) {
@@ -60,9 +54,6 @@ class TodoServices {
   }
 
   async createTodo(userId, description, deadline, statusconclusion) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists.", 401);
-
     const todo = await this.todoRepository.createTodo(
       userId,
       description,
@@ -77,10 +68,7 @@ class TodoServices {
     };
   }
 
-  async closeTodo(userId, todoId) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new AppError("User not exists.", 401);
-
+  async closeTodo(todoId) {
     const todo = await this.todoRepository.getTodo(todoId);
 
     if (!todo) {

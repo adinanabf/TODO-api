@@ -50,11 +50,9 @@ class TodoController {
     const { error } = todoEditSchema.validate(req.body);
     if (error) throw new AppError(error.toString(), 400);
 
-    const { userId } = req;
     const { todoId, newDescription, newDeadline } = req.body;
 
     const result = await todoServices.editTodo(
-      userId,
       todoId,
       newDescription,
       newDeadline
@@ -98,10 +96,9 @@ class TodoController {
     if (error) throw new AppError(error.toString(), 400);
 
     try {
-      const { userId } = req;
       const { todoId } = req.body;
 
-      const result = await todoServices.closeTodo(userId, todoId);
+      const result = await todoServices.closeTodo(todoId);
 
       return res.status(result.status).json({ result });
     } catch (error) {

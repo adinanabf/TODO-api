@@ -1,71 +1,9 @@
 const AppError = require("../src/error/AppError");
 const { UserServices } = require("../src/services/UserServices");
 const { TodoServices } = require("../src/services/TodoServices");
+const { UserRepositoryMock } = require("./mocks/UserRepositoryMock");
+const { TodoRepositoryMock } = require("./mocks/TodoRepositoryMock");
 const { v4 } = require("uuid");
-
-class UserRepositoryMock {
-  users = [];
-
-  async findById(userId) {
-    const user = this.users.find((user) => user.id === userId);
-    return user;
-  }
-
-  async findByEmail(email) {
-    const user = this.users.find((user) => user.email === email);
-    return user;
-  }
-
-  async saveUser(user) {
-    user.id = v4();
-
-    this.users.push(user);
-    return user;
-  }
-
-  async createUser(email, hashPassword) {
-    const user = {
-      id: v4(),
-      email: email,
-      password: hashPassword,
-    };
-
-    this.users.push(user);
-    return user;
-  }
-}
-
-class TodoRepositoryMock {
-  todos = [];
-
-  async getUserTodos(userId) {
-    const todos = this.todos.filter((todo) => todo.userId === userId)
-    return todos;
-  };
-
-  async getTodo(todoId) {
-    const todo = this.todos.find((todo) => todo.id === todoId);
-    return todo;
-  };
-
-  async saveTodo(todo) {
-    todo.id = v4();
-
-    this.todos.push(todo);
-    return todo;
-  };
-
-  async createTodo(userId, description, deadline, statusconclusion) {
-    const todo = {
-      userId,
-      description,
-      deadline,
-      statusconclusion,
-    };
-    
-    return this.todos.push(todo);
-  };
-}
 
 describe("Todo Services test", () => {
   let userServices;
@@ -106,15 +44,7 @@ describe("Todo Services test", () => {
     expect(Object.keys(allTodos).length).toEqual(2);
   });
 
-  it("Should not be possible to get all todos without login", async () => {
-    const userId = v4();
-
-    await expect(
-      todoServices.listTodos(userId)).rejects.toEqual(
-      new AppError("User not exists.", 401))
-  });
-
-  it("Should be possible to create a todo", async () => {
+  it("Should be possible to create a todo with valid token", async () => {
     const email = "peter@marvel.com";
     const password = "spider";
 
@@ -131,16 +61,6 @@ describe("Todo Services test", () => {
     expect(createTodo).toHaveProperty("todoId");
   });
 
-  it("Should not be possible to create a todo", async () => {
-    const userId = v4();
-    const todoDescription = "Read the bible";
-    const todoDeadline = "2023-10-12";
-
-    await expect(
-      todoServices.createTodo(userId, todoDescription, todoDeadline
-      )).rejects.toEqual(
-      new AppError("User not exists.", 401))
-  });
 
   it("Should be possible to edit a todo", async () => {
     const email = "peter@marvel.com";
@@ -156,18 +76,10 @@ describe("Todo Services test", () => {
 
     const newTodoDeadline = "2024-10-12";
 
-    const editTodo = await todoServices.editTodo(userId, createTodo.todoId, "", newTodoDeadline)
+    const editTodo = await todoServices.editTodo(createTodo.todoId, "", newTodoDeadline)
 
     expect(editTodo.message).toStrictEqual("TODO item updated successfully.");
     expect(editTodo.status).toStrictEqual(200);
-  });
-
-  it("Should not be possible to edit a todo without registration", async () => {
-    const userId = v4();
-    const newTodoDeadline = "2024-10-12";
-
-    await expect(todoServices.editTodo(userId, "", "", newTodoDeadline)).rejects.toEqual(
-      new AppError("User not exists.", 401))
   });
 
   it("Should not be possible to edit a todo without description & deadline", async () => {
@@ -182,7 +94,7 @@ describe("Todo Services test", () => {
 
     const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
 
-    await expect(todoServices.editTodo(userId, createTodo.todoId, "", "")).rejects.toEqual(
+    await expect(todoServices.editTodo(createTodo.todoId, "", "")).rejects.toEqual(
       new AppError("There is no change to be made.", 400))
   });
 
@@ -204,23 +116,17 @@ describe("Todo Services test", () => {
     const todoNewDescription = "Read the entire bible";
 
     await expect(
-      todoServices.editTodo(userId, createTodo.todoId, todoNewDescription, ""
+      todoServices.editTodo(createTodo.todoId, todoNewDescription, ""
       )).rejects.toEqual(
       new AppError("TODO item already closed.", 409))
   });
 
   it("Should not be possible to edit an unexistent todo", async () => {
-    const email = "peter@marvel.com";
-    const password = "spider";
-
-    const createUser = await userServices.createUser(email, password);
-    const userId = createUser.userId;
-
     const todoId = v4()
     const todoNewDescription = "Read the entire bible";
 
     await expect(
-      todoServices.editTodo(userId, todoId, todoNewDescription, ""
+      todoServices.editTodo(todoId, todoNewDescription, ""
       )).rejects.toEqual(
       new AppError("TODO item not found.", 404))
   });
@@ -241,28 +147,14 @@ describe("Todo Services test", () => {
     );
 
     await expect(
-      todoServices.closeTodo(userId, createTodo.todoId)).rejects.toEqual(
+      todoServices.closeTodo(createTodo.todoId)).rejects.toEqual(
       new AppError("TODO item already closed.", 409))
   });
 
-  it("Should not be possible to close a todo without registration", async () => {
-    const userId = v4();
-    const todoId = v4();
-
-    await expect(todoServices.closeTodo(userId, todoId)).rejects.toEqual(
-      new AppError("User not exists.", 401))
-  });
-
   it("Should not be possible to close an unexistent todo", async () => {
-    const email = "peter@marvel.com";
-    const password = "spider";
-
-    const createUser = await userServices.createUser(email, password);
-
-    const userId = createUser.userId;
     const todoId = v4();
 
-    await expect(todoServices.closeTodo(userId, todoId)).rejects.toEqual(
+    await expect(todoServices.closeTodo(todoId)).rejects.toEqual(
       new AppError("TODO item not found.", 404))
   });
   
@@ -278,7 +170,7 @@ describe("Todo Services test", () => {
 
     const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
 
-    const closeTodo = await todoServices.closeTodo(userId, createTodo.todoId)
+    const closeTodo = await todoServices.closeTodo(createTodo.todoId)
 
     expect(closeTodo.message).toStrictEqual("TODO item closed successfully.");
     expect(closeTodo.status).toStrictEqual(200);
