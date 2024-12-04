@@ -34,7 +34,7 @@ class TodoServices {
     }
 
     if (!newDescription && !newDeadline) {
-      throw new AppError("There is no change to be made.", 400)
+      throw new AppError("There is no change to be made.", 400);
     }
 
     if (todo.statusconclusion) {

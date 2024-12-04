@@ -2,7 +2,6 @@ const AppError = require("../src/error/AppError");
 const { UserServices } = require("../src/services/UserServices");
 const { UserRepositoryMock } = require("./mocks/UserRepositoryMock");
 
-
 describe("User Services test", () => {
   let userServices;
 
@@ -63,6 +62,6 @@ describe("User Services test", () => {
 
     expect(loginUser.message).toStrictEqual("You are successfully logged in.");
     expect(loginUser.status).toStrictEqual(200);
-    expect(loginUser).toHaveProperty("token")
+    expect(loginUser).toHaveProperty("token");
   });
 });

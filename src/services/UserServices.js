@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const AppError = require("../error/AppError");
-require('dotenv').config();
+require("dotenv").config();
 
 class UserServices {
   constructor({ userRepository }) {
@@ -16,8 +16,12 @@ class UserServices {
     const hashPassword = await bcrypt.hash(password, salt);
 
     const user = await this.userRepository.createUser(email, hashPassword);
-    return { status: 201, message: "User created successfully.", userId: user.id };
-  };
+    return {
+      status: 201,
+      message: "User created successfully.",
+      userId: user.id,
+    };
+  }
 
   async loginUser(email, password) {
     const user = await this.userRepository.findByEmail(email);
@@ -38,7 +42,7 @@ class UserServices {
       message: "You are successfully logged in.",
       token: token,
     };
-  };
+  }
 }
 
 module.exports = { UserServices };

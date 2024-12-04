@@ -10,7 +10,7 @@ class TodoRepositoryFactory {
   static async createInstance({ db }) {
     let repository;
 
-    if (db === "mongo"){
+    if (db === "mongo") {
       repository = new MongoTodoRepository();
     } else {
       repository = new PostgresTodoRepository();

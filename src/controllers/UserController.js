@@ -22,28 +22,31 @@ class UserController {
     const userServices = new UserServices({ userRepository });
 
     const { error } = registerSchema.validate(req.body);
-    if (error) throw new AppError(error.toString())
+    if (error) throw new AppError(error.toString());
 
     const { email, password } = req.body;
-    const result = await userServices.createUser(email, password)
+    const result = await userServices.createUser(email, password);
     return res.status(result.status).json({ result });
-  };
+  }
 
   async loginUser(req, res) {
     const { db } = req.headers;
 
     const userRepository = await UserRepositoryFactory.createInstance({ db });
-    
+
     const userServices = new UserServices({ userRepository });
 
     const { error } = loginSchema.validate(req.body);
-    if (error) throw new AppError(error.toString())
-  
+    if (error) throw new AppError(error.toString());
+
     const { email, password } = req.body;
     const result = await userServices.loginUser(email, password);
 
     if (result.token) {
-      return res.header("auth-token", result.token).status(result.status).json(result);
+      return res
+        .header("auth-token", result.token)
+        .status(result.status)
+        .json(result);
     } else {
       return res.status(result.status).json(result);
     }

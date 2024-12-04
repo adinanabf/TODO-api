@@ -1,28 +1,28 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const TODO = new mongoose.Schema({
   userId: {
     type: String,
     min: 0,
-    max: 255
+    max: 255,
   },
   description: {
     type: String,
     required: true,
     min: 1,
-    max: 255
+    max: 255,
   },
   deadline: {
     type: Date,
-    required: true
+    required: true,
   },
-  lastmodification:{
+  lastmodification: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  statusconclusion:{
-    type: Boolean
-  }
+  statusconclusion: {
+    type: Boolean,
+  },
 });
 
-module.exports = mongoose.model('TODO', TODO);
+module.exports = mongoose.model("TODO", TODO);

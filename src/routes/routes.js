@@ -9,7 +9,7 @@ const userController = new UserController();
 
 router.post("/register", userController.createUser);
 
-router.post("/login", userController.loginUser); 
+router.post("/login", userController.loginUser);
 
 router.post("/TODO/create", checkToken, todoController.createTodo);
 
@@ -23,7 +23,7 @@ function checkToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
-    throw new AppError("Access denied. Token missing or invalid.", 401)
+    throw new AppError("Access denied. Token missing or invalid.", 401);
   }
 
   try {
@@ -31,7 +31,7 @@ function checkToken(req, res, next) {
     req.userId = decodedInfo._id;
     next();
   } catch (error) {
-    throw new AppError("Access denied. Token missing or invalid.", 401)
+    throw new AppError("Access denied. Token missing or invalid.", 401);
   }
 }
 

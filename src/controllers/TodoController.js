@@ -57,7 +57,7 @@ class TodoController {
       newDescription,
       newDeadline
     );
-    
+
     return res.status(result.status).json({ result });
   }
 

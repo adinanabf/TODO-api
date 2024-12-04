@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { Pool } = require('pg');
+require("dotenv").config();
+const { Pool } = require("pg");
 
 class Database {
   constructor() {
@@ -12,7 +12,7 @@ class Database {
       await this.createUserTable();
       await this.createTodoTable();
       await this.getConnection();
-      console.log("PostgreSQL connected.")
+      console.log("PostgreSQL connected.");
     } catch (error) {
       console.log("Failed to connect to postgres", error);
     }
@@ -20,14 +20,14 @@ class Database {
 
   async getConnection() {
     return new Pool({
-      user: 'postgres',
-      host: 'localhost',
-      database: 'postgres',
-      password: 'postgres',
-      port: 5432
-    })
+      user: "postgres",
+      host: "localhost",
+      database: "postgres",
+      password: "postgres",
+      port: 5432,
+    });
     // return new Pool({ connectionString: `${process.env.DATABASE_URL}` });
-  };
+  }
 
   async createSchema() {
     const schemaScript = `CREATE SCHEMA IF NOT EXISTS todo_api`;
@@ -35,7 +35,7 @@ class Database {
     const pool = await this.getConnection();
     await pool.query(schemaScript);
     await pool.end();
-  };
+  }
 
   async createUserTable() {
     const tableScript = `CREATE TABLE IF NOT EXISTS todo_api.user (
@@ -48,7 +48,7 @@ class Database {
     const pool = await this.getConnection();
     await pool.query(tableScript);
     await pool.end();
-  };
+  }
 
   async createTodoTable() {
     const tableScript = `CREATE TABLE IF NOT EXISTS todo_api.todo (

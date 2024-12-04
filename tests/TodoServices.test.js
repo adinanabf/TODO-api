@@ -28,13 +28,18 @@ describe("Todo Services test", () => {
     const todo1Description = "Read the bible";
     const todo1Deadline = "2023-10-12";
 
-    await todoServices.createTodo(userId, todo1Description, todo1Deadline)
+    await todoServices.createTodo(userId, todo1Description, todo1Deadline);
 
     const todo2Description = "Write an article";
     const todo2Deadline = "2023-6-10";
     const todo2status = true;
 
-    await todoServices.createTodo(userId, todo2Description, todo2Deadline, todo2status)
+    await todoServices.createTodo(
+      userId,
+      todo2Description,
+      todo2Deadline,
+      todo2status
+    );
 
     const allTodos = await todoServices.listTodos(userId);
 
@@ -54,13 +59,16 @@ describe("Todo Services test", () => {
     const todoDescription = "Read the bible";
     const todoDeadline = "2023-10-12";
 
-    const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
+    const createTodo = await todoServices.createTodo(
+      userId,
+      todoDescription,
+      todoDeadline
+    );
 
     expect(createTodo.message).toStrictEqual("TODO created successfully.");
     expect(createTodo.status).toStrictEqual(201);
     expect(createTodo).toHaveProperty("todoId");
   });
-
 
   it("Should be possible to edit a todo", async () => {
     const email = "peter@marvel.com";
@@ -72,11 +80,19 @@ describe("Todo Services test", () => {
     const todoDescription = "Read the bible";
     const todoDeadline = "2023-10-12";
 
-    const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
+    const createTodo = await todoServices.createTodo(
+      userId,
+      todoDescription,
+      todoDeadline
+    );
 
     const newTodoDeadline = "2024-10-12";
 
-    const editTodo = await todoServices.editTodo(createTodo.todoId, "", newTodoDeadline)
+    const editTodo = await todoServices.editTodo(
+      createTodo.todoId,
+      "",
+      newTodoDeadline
+    );
 
     expect(editTodo.message).toStrictEqual("TODO item updated successfully.");
     expect(editTodo.status).toStrictEqual(200);
@@ -92,10 +108,15 @@ describe("Todo Services test", () => {
     const todoDescription = "Read the bible";
     const todoDeadline = "2023-10-12";
 
-    const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
+    const createTodo = await todoServices.createTodo(
+      userId,
+      todoDescription,
+      todoDeadline
+    );
 
-    await expect(todoServices.editTodo(createTodo.todoId, "", "")).rejects.toEqual(
-      new AppError("There is no change to be made.", 400))
+    await expect(
+      todoServices.editTodo(createTodo.todoId, "", "")
+    ).rejects.toEqual(new AppError("There is no change to be made.", 400));
   });
 
   it("Should not be possible to edit a finished todo", async () => {
@@ -110,25 +131,26 @@ describe("Todo Services test", () => {
     const todoStatusConclusion = true;
 
     const createTodo = await todoServices.createTodo(
-      userId, todoDescription, todoDeadline,todoStatusConclusion
+      userId,
+      todoDescription,
+      todoDeadline,
+      todoStatusConclusion
     );
 
     const todoNewDescription = "Read the entire bible";
 
     await expect(
-      todoServices.editTodo(createTodo.todoId, todoNewDescription, ""
-      )).rejects.toEqual(
-      new AppError("TODO item already closed.", 409))
+      todoServices.editTodo(createTodo.todoId, todoNewDescription, "")
+    ).rejects.toEqual(new AppError("TODO item already closed.", 409));
   });
 
   it("Should not be possible to edit an unexistent todo", async () => {
-    const todoId = v4()
+    const todoId = v4();
     const todoNewDescription = "Read the entire bible";
 
     await expect(
-      todoServices.editTodo(todoId, todoNewDescription, ""
-      )).rejects.toEqual(
-      new AppError("TODO item not found.", 404))
+      todoServices.editTodo(todoId, todoNewDescription, "")
+    ).rejects.toEqual(new AppError("TODO item not found.", 404));
   });
 
   it("Should not be possible to close a finished todo", async () => {
@@ -143,21 +165,25 @@ describe("Todo Services test", () => {
     const todoStatusConclusion = true;
 
     const createTodo = await todoServices.createTodo(
-      userId, todoDescription, todoDeadline,todoStatusConclusion
+      userId,
+      todoDescription,
+      todoDeadline,
+      todoStatusConclusion
     );
 
-    await expect(
-      todoServices.closeTodo(createTodo.todoId)).rejects.toEqual(
-      new AppError("TODO item already closed.", 409))
+    await expect(todoServices.closeTodo(createTodo.todoId)).rejects.toEqual(
+      new AppError("TODO item already closed.", 409)
+    );
   });
 
   it("Should not be possible to close an unexistent todo", async () => {
     const todoId = v4();
 
     await expect(todoServices.closeTodo(todoId)).rejects.toEqual(
-      new AppError("TODO item not found.", 404))
+      new AppError("TODO item not found.", 404)
+    );
   });
-  
+
   it("Should be possible to close a todo", async () => {
     const email = "peter@marvel.com";
     const password = "spider";
@@ -168,9 +194,13 @@ describe("Todo Services test", () => {
     const todoDescription = "Read the bible";
     const todoDeadline = "2023-10-12";
 
-    const createTodo = await todoServices.createTodo(userId, todoDescription, todoDeadline)
+    const createTodo = await todoServices.createTodo(
+      userId,
+      todoDescription,
+      todoDeadline
+    );
 
-    const closeTodo = await todoServices.closeTodo(createTodo.todoId)
+    const closeTodo = await todoServices.closeTodo(createTodo.todoId);
 
     expect(closeTodo.message).toStrictEqual("TODO item closed successfully.");
     expect(closeTodo.status).toStrictEqual(200);
