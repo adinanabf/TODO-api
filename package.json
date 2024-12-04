@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^29.5.0",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.1.7",
     "supertest": "^6.3.3"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "express": "^4.18.2",
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.1.0"
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.3"
   }
 }
