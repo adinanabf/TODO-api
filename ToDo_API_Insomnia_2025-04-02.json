@@ -1,0 +1,407 @@
+{
+    "_type": "export",
+    "__export_format": 4,
+    "__export_date": "2025-04-02T22:41:03.577Z",
+    "__export_source": "insomnia.desktop.app:v10.2.0",
+    "resources": [
+        {
+            "_id": "req_60e9a5a084734d2089e3da72d37ba42b",
+            "parentId": "fld_3b548ce82ecc460482133fae1c1223c6",
+            "modified": 1743631429149,
+            "created": 1743628783116,
+            "url": "{{ _.localhost }}/api/TODO/create",
+            "name": "Create ToDo",
+            "description": "",
+            "method": "POST",
+            "body": {
+                "mimeType": "application/json",
+                "text": "{\n\t\"description\": \"Prova POO\",\n\t\"deadline\": \"2025-03-03\"\n}"
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_7d7f242a81ed47b0b172925b8e0d7485"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_5412c9b68ebf409c9a61399532aacdb8",
+                    "disabled": true
+                },
+                {
+                    "id": "pair_27450874cf87441ebbf1bb6f17d2a642",
+                    "name": "authorization",
+                    "value": "{{ _.auth }}",
+                    "description": "",
+                    "disabled": false
+                },
+                {
+                    "id": "pair_9b235380b9f74cbfbc337b05ae0398a4",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {
+                "type": "bearer",
+                "token": "nsWiRJqFZ5l1ablJFvdJ24UC9eDJz7me0CngyrHYqdg",
+                "disabled": true
+            },
+            "metaSortKey": -1743631358392,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "fld_3b548ce82ecc460482133fae1c1223c6",
+            "parentId": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "modified": 1743631355622,
+            "created": 1743631355622,
+            "name": "ToDo",
+            "description": "",
+            "environment": {},
+            "environmentPropertyOrder": null,
+            "metaSortKey": -1743631355622,
+            "environmentType": "kv",
+            "_type": "request_group"
+        },
+        {
+            "_id": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "parentId": null,
+            "modified": 1743625652220,
+            "created": 1743625652220,
+            "name": "ToDo API",
+            "description": "",
+            "scope": "collection",
+            "_type": "workspace"
+        },
+        {
+            "_id": "req_e4aa84dd5bfd4143abfc252c2c65afc0",
+            "parentId": "fld_3b548ce82ecc460482133fae1c1223c6",
+            "modified": 1743632138956,
+            "created": 1743632081991,
+            "url": "{{ _.localhost }}/api/TODO/close",
+            "name": "Close ToDo",
+            "description": "",
+            "method": "PUT",
+            "body": {
+                "mimeType": "application/json",
+                "text": "{\n\t\"todoId\":\"67edb67c8122c121330bd3de\"\n}"
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_7d7f242a81ed47b0b172925b8e0d7485"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_5412c9b68ebf409c9a61399532aacdb8",
+                    "disabled": true
+                },
+                {
+                    "id": "pair_27450874cf87441ebbf1bb6f17d2a642",
+                    "name": "authorization",
+                    "value": "{{ _.auth }}",
+                    "description": "",
+                    "disabled": false
+                },
+                {
+                    "id": "pair_9b235380b9f74cbfbc337b05ae0398a4",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {
+                "type": "bearer",
+                "token": "nsWiRJqFZ5l1ablJFvdJ24UC9eDJz7me0CngyrHYqdg",
+                "disabled": true
+            },
+            "metaSortKey": -1743629997119.75,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "req_75aac417006e4346b54551a62f3aa8c1",
+            "parentId": "fld_3b548ce82ecc460482133fae1c1223c6",
+            "modified": 1743632030643,
+            "created": 1743631363206,
+            "url": "{{ _.localhost }}/api/TODO/edit",
+            "name": "Edit ToDo",
+            "description": "",
+            "method": "PUT",
+            "body": {
+                "mimeType": "application/json",
+                "text": "{\n\t\"todoId\":\"67edb67c8122c121330bd3de\",\n\t\"newDescription\": \"Prova POO - P1\",\n\t\"newDeadline\": \"2025-05-12\"\n}"
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_7d7f242a81ed47b0b172925b8e0d7485"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_5412c9b68ebf409c9a61399532aacdb8",
+                    "disabled": true
+                },
+                {
+                    "id": "pair_27450874cf87441ebbf1bb6f17d2a642",
+                    "name": "authorization",
+                    "value": "{{ _.auth }}",
+                    "description": "",
+                    "disabled": false
+                },
+                {
+                    "id": "pair_9b235380b9f74cbfbc337b05ae0398a4",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {
+                "type": "bearer",
+                "token": "nsWiRJqFZ5l1ablJFvdJ24UC9eDJz7me0CngyrHYqdg",
+                "disabled": true
+            },
+            "metaSortKey": -1743628635847.5,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "req_b893213e02314ec98aa492be93eac6d1",
+            "parentId": "fld_3b548ce82ecc460482133fae1c1223c6",
+            "modified": 1743632525279,
+            "created": 1743632100043,
+            "url": "{{ _.localhost }}/api/TODO",
+            "name": "List ToDos",
+            "description": "",
+            "method": "GET",
+            "body": {
+                "mimeType": "application/json",
+                "text": ""
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_7d7f242a81ed47b0b172925b8e0d7485"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_5412c9b68ebf409c9a61399532aacdb8",
+                    "disabled": true
+                },
+                {
+                    "id": "pair_27450874cf87441ebbf1bb6f17d2a642",
+                    "name": "authorization",
+                    "value": "{{ _.auth }}",
+                    "description": "",
+                    "disabled": false
+                },
+                {
+                    "id": "pair_9b235380b9f74cbfbc337b05ae0398a4",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {
+                "type": "bearer",
+                "token": "nsWiRJqFZ5l1ablJFvdJ24UC9eDJz7me0CngyrHYqdg",
+                "disabled": true
+            },
+            "metaSortKey": -1743626593939.125,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "req_33a97c9e0c794fd1b39dd3b3e7198b57",
+            "parentId": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "modified": 1743633630423,
+            "created": 1743625913303,
+            "url": "{{ _.localhost }}/api/register",
+            "name": "Register",
+            "description": "",
+            "method": "POST",
+            "body": {
+                "mimeType": "application/json",
+                "text": "{\n\t\"email\": \"myemail@live.com\",\n\t\"password\": \"12345678\"\n}"
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_ba8f501d126d465292d715f20296791b"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_cd47c1857d454124b30fc6310e21bd24"
+                },
+                {
+                    "id": "pair_e43d3f7418f6437a82291b70ca27d041",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {},
+            "metaSortKey": -1743625913303,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "req_a1e339167c1e48d183e2ada26a537f7a",
+            "parentId": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "modified": 1743633633519,
+            "created": 1743626084896,
+            "url": "{{ _.localhost }}/api/login",
+            "name": "Login",
+            "description": "",
+            "method": "POST",
+            "body": {
+                "mimeType": "application/json",
+                "text": "{\n\t\"email\": \"myemail@live.com\",\n\t\"password\": \"12345678\"\n}"
+            },
+            "parameters": [],
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json",
+                    "id": "pair_a33e2417d5da48c0be7ca8edc0da648d"
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "insomnia/10.2.0",
+                    "id": "pair_55f85419dfa74e8d9b3e7a143fcba281"
+                },
+                {
+                    "id": "pair_09e7ad73795e4bcb9dd8cc3c957bc4f5",
+                    "name": "db",
+                    "value": "{{ _.mongo }}",
+                    "description": "",
+                    "disabled": false
+                }
+            ],
+            "authentication": {},
+            "metaSortKey": -1737556221624,
+            "isPrivate": false,
+            "pathParameters": [],
+            "settingStoreCookies": true,
+            "settingSendCookies": true,
+            "settingDisableRenderRequestBody": false,
+            "settingEncodeUrl": true,
+            "settingRebuildPath": true,
+            "settingFollowRedirects": "global",
+            "_type": "request"
+        },
+        {
+            "_id": "env_71171bea1047cab12f2d0faebca22a714467b3c4",
+            "parentId": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "modified": 1743632540668,
+            "created": 1743625652222,
+            "name": "Base Environment",
+            "data": {
+                "mongo": "mongo",
+                "postgres": "postgres",
+                "auth": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2VkYjA2MjQ3MTM3ZmI2NTcyNWI1YjAiLCJlbWFpbCI6InphemFAbGl2ZS5jb20iLCJpYXQiOjE3NDM2MzI1MjcsImV4cCI6MTc0MzYzNjEyN30.AuVaLu2QvS6JqZmi9VeHX1vouctQ4nOgX3f4-HPbgCo",
+                "localhost": "http://localhost:8080"
+            },
+            "dataPropertyOrder": null,
+            "color": null,
+            "isPrivate": false,
+            "metaSortKey": 1743625652222,
+            "environmentType": "kv",
+            "kvPairData": [
+                {
+                    "id": "envPair_097a3395b8354969a6b019b3d2ff411e",
+                    "name": "mongo",
+                    "value": "mongo",
+                    "type": "str",
+                    "enabled": true
+                },
+                {
+                    "id": "envPair_4844a32c0c7a4aab9f6cf3a6887ca693",
+                    "name": "postgres",
+                    "value": "postgres",
+                    "type": "str",
+                    "enabled": true
+                },
+                {
+                    "id": "envPair_8dc8dbf02103444ba6f39205bd9147dd",
+                    "name": "auth",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2VkYjA2MjQ3MTM3ZmI2NTcyNWI1YjAiLCJlbWFpbCI6InphemFAbGl2ZS5jb20iLCJpYXQiOjE3NDM2MzI1MjcsImV4cCI6MTc0MzYzNjEyN30.AuVaLu2QvS6JqZmi9VeHX1vouctQ4nOgX3f4-HPbgCo",
+                    "type": "str",
+                    "enabled": true
+                },
+                {
+                    "id": "envPair_cc5bb0734ed44069b027fa953ae71714",
+                    "name": "localhost",
+                    "value": "http://localhost:8080",
+                    "type": "str",
+                    "enabled": true
+                }
+            ],
+            "_type": "environment"
+        },
+        {
+            "_id": "jar_71171bea1047cab12f2d0faebca22a714467b3c4",
+            "parentId": "wrk_c035e4d243574f7d9e25e1ea3a47d24f",
+            "modified": 1743625652223,
+            "created": 1743625652223,
+            "name": "Default Jar",
+            "cookies": [],
+            "_type": "cookie_jar"
+        }
+    ]
+}
