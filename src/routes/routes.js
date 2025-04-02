@@ -8,15 +8,19 @@ const todoController = new TodoController();
 const userController = new UserController();
 
 router.post("/register", userController.createUser);
+
 router.post("/login", userController.loginUser);
+
 router.post("/TODO/create", checkToken, todoController.createTodo);
+
 router.put("/TODO/close", checkToken, todoController.closeTodo);
+
 router.put("/TODO/edit", checkToken, todoController.editTodo);
+
 router.get("/TODO", checkToken, todoController.listTodos);
 
 function checkToken(req, next) {
-  const token = authHeader;
-
+  const token = req.headers["authorization"];
   if (!token) {
     throw new AppError("Access denied. Token missing or invalid.", 401);
   }

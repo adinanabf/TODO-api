@@ -19,6 +19,7 @@ app.get("/", (__, res) => {
 app.use("/api", routes);
 
 app.use((err, _, res, __) => {
+  console.error(err);
   if (err.statusCode) {
     return res.status(err.statusCode).json({
       message: err.message,
