@@ -10,6 +10,17 @@ The API uses a middleware function to authenticate requests that require authent
 
 Authentication is required to use this API. Requests must include an access token in the `Authorization` header to access all routes except registration and login routes.
 
+## Environment Variables (.env)
+
+Create a `.env` file in the root directory and add the following variables:
+
+```ini
+DATABASE_URL="your_mongodb_database_url"
+DATABASE_NAME="your_mongodb_database_name"
+TOKEN_SECRET="your_jwt_token_secret"
+POSTGRES_DATABASE_URL="your_postgres_database_url"
+```
+
 ## Endpoints
 
 ### `POST /api/register`
@@ -81,7 +92,7 @@ Modifies a not closed TODO item.
 
 #### Body Parameters
 
-- `description` (required): Unique and not null string, must match the one of an existing TODO item.
+- `todoId` (required): Unique and not null string, must match the one of an existing TODO item.
 - `newDescription` (optional): Unique and not null string.
 - `newDeadline` (optional): Boolean.
 

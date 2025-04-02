@@ -19,17 +19,18 @@ router.put("/TODO/edit", checkToken, todoController.editTodo);
 
 router.get("/TODO", checkToken, todoController.listTodos);
 
-function checkToken(req, next) {
+function checkToken(req, res, next) {
   const token = req.headers["authorization"];
+
   if (!token) {
     throw new AppError("Access denied. Token missing or invalid.", 401);
   }
-
   try {
     const decodedInfo = jwt.verify(token, process.env.TOKEN_SECRET);
     req.userId = decodedInfo._id;
     next();
   } catch (error) {
+    console.error(error);
     throw new AppError("Access denied. Token missing or invalid.", 401);
   }
 }
