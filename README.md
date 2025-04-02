@@ -29,12 +29,15 @@ POSTGRES_DATABASE_URL="your_postgres_database_url"
 **Important:** Add `.env` to your `.gitignore` file to keep sensitive data secure.
 
 ### How to get a secret token?
+
 You can generate a JWT secret at [jwtsecret.com](https://jwtsecret.com/generate).
 
-### How to get a MongoDB database? 
+### How to get a MongoDB database?
+
 Sign up and create a database at [MongoDB Atlas](https://cloud.mongodb.com/).
 
 ### How to set up a PostgreSQL database using Podman?
+
 Ensure you have [Podman installed](https://podman.io/getting-started/installation).  
 Then, run the following command:
 
@@ -50,6 +53,7 @@ podman run -d \
 ```
 
 This will:
+
 - Start a PostgreSQL container named `my_postgres`
 - Use `postgres` as the default user, password, and database
 - Expose the database on port `5432`
@@ -62,22 +66,28 @@ podman stop my_postgres
 podman rm my_postgres
 podman volume rm postgres_data
 ```
+
 ### Viewing PostgreSQL Data with pgAdmin  
 
 To easily manage and explore your PostgreSQL database, you can use **pgAdmin**, a graphical tool.  
 
 #### **Installation**  
+
 - **Windows & macOS**: Download from [pgAdmin.org](https://www.pgadmin.org/download/).  
 - **Linux (Ubuntu/Debian)**: Install via APT:  
+
   ```sh
   sudo apt update && sudo apt install pgadmin4
   ```
+
 - **Linux (Fedora/RHEL)**: Install via DNF:  
+
   ```sh
   sudo dnf install pgadmin4
   ```
 
 #### **Connect to Your PostgreSQL Database**  
+
 1. Open **pgAdmin** and click **Add New Server**.  
 2. Under the **General** tab, set a name (e.g., "Postgres DB").  
 3. In the **Connection** tab:  
@@ -88,7 +98,6 @@ To easily manage and explore your PostgreSQL database, you can use **pgAdmin**, 
 4. Click **Save**, then navigate to your database to explore tables, run queries, and manage data visually!  
 
 **Tip**: If pgAdmin fails to connect, ensure your PostgreSQL container is running.
-
 
 ## API Endpoints
 
