@@ -1,11 +1,9 @@
 const AppError = require("../error/AppError");
-const { TodoRepository } = require("../repository/TodoRepository");
-const { UserRepository } = require("../repository/UserRepository");
 
 class TodoServices {
-  constructor() {
-    this.todoRepository = new TodoRepository();
-    this.userRepository = new UserRepository();
+  constructor({ todoRepository, userRepository }) {
+    this.todoRepository = todoRepository;
+    this.userRepository = userRepository;
   }
 
   async listTodos(userId) {

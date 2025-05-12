@@ -1,6 +1,8 @@
 const Joi = require("@hapi/joi");
 const { TodoServices } = require("../services/TodoServices");
 const AppError = require("../error/AppError");
+const { TodoRepository } = require("../repository/TodoRepository");
+const { UserRepository } = require("../repository/UserRepository");
 
 const todoEditSchema = Joi.object({
   // todoId: Joi.string()
@@ -14,7 +16,7 @@ const todoEditSchema = Joi.object({
 const todoCreateSchema = Joi.object({
   description: Joi.string().min(0).max(255).required(),
   deadline: Joi.date().iso().required(),
-  statusConclusion: Joi.bool(),
+  statusconclusion: Joi.bool(),
 });
 
 const todoCloseSchema = Joi.object({
@@ -23,7 +25,9 @@ const todoCloseSchema = Joi.object({
 
 class TodoController {
   async listTodos(req, res) {
-    const todoServices = new TodoServices();
+    const todoRepository = new TodoRepository();
+    const userRepository = new UserRepository();
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     try {
       const { userId } = req;
@@ -37,7 +41,9 @@ class TodoController {
   }
 
   async editTodo(req, res) {
-    const todoServices = new TodoServices();
+    const todoRepository = new TodoRepository();
+    const userRepository = new UserRepository();
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoEditSchema.validate(req.body);
     if (error) throw new AppError(error.toString(), 400);
@@ -54,7 +60,9 @@ class TodoController {
   }
 
   async createTodo(req, res) {
-    const todoServices = new TodoServices();
+    const todoRepository = new TodoRepository();
+    const userRepository = new UserRepository();
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCreateSchema.validate(req.body);
 
@@ -63,20 +71,22 @@ class TodoController {
     const { userId } = req;
     const { description } = req.body;
     const { deadline } = req.body;
-    const { statusConclusion } = req.body;
+    const { statusconclusion } = req.body;
 
     const result = await todoServices.createTodo(
       userId,
       description,
       deadline,
-      statusConclusion
+      statusconclusion
     );
 
     return res.status(result.status).json({ result });
   }
 
   async closeTodo(req, res) {
-    const todoServices = new TodoServices();
+    const todoRepository = new TodoRepository();
+    const userRepository = new UserRepository();
+    const todoServices = new TodoServices({ todoRepository, userRepository });
 
     const { error } = todoCloseSchema.validate(req.body);
     if (error) throw new AppError(error.toString(), 400);

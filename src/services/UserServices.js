@@ -1,12 +1,11 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const AppError = require("../error/AppError");
-const { UserRepository } = require("../repository/UserRepository");
 require("dotenv").config();
 
 class UserServices {
-  constructor() {
-    this.userRepository = new UserRepository();
+  constructor({ userRepository }) {
+    this.userRepository = userRepository;
   }
 
   async createUser(email, password) {

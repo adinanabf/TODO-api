@@ -40,7 +40,6 @@ describe("Todo Services test", () => {
       todo2Deadline,
       todo2status
     );
-
     const allTodos = await todoServices.listTodos(userId);
 
     expect(allTodos[0].description).toStrictEqual(todo1Description);
@@ -114,9 +113,9 @@ describe("Todo Services test", () => {
       todoDeadline
     );
 
-    await expect(
-      todoServices.editTodo(createTodo.todoId, "", "")
-    ).rejects.toEqual(new AppError("There is no change to be made.", 400));
+    await expect(todoServices.editTodo(createTodo.todoId)).rejects.toEqual(
+      new AppError("There is no change to be made.", 400)
+    );
   });
 
   it("Should not be possible to edit a finished todo", async () => {

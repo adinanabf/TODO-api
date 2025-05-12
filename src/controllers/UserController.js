@@ -1,6 +1,7 @@
 const Joi = require("@hapi/joi");
 const { UserServices } = require("../services/UserServices");
 const AppError = require("../error/AppError");
+const { UserRepository } = require("../repository/UserRepository");
 
 const registerSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -14,7 +15,8 @@ const loginSchema = Joi.object({
 
 class UserController {
   async createUser(req, res) {
-    const userServices = new UserServices();
+    const userRepository = new UserRepository();
+    const userServices = new UserServices({ userRepository });
 
     const { error } = registerSchema.validate(req.body);
     if (error) throw new AppError(error.toString());
@@ -25,7 +27,8 @@ class UserController {
   }
 
   async loginUser(req, res) {
-    const userServices = new UserServices();
+    const userRepository = new UserRepository();
+    const userServices = new UserServices({ userRepository });
 
     const { error } = loginSchema.validate(req.body);
     if (error) throw new AppError(error.toString());
