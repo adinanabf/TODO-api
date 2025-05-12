@@ -45,7 +45,7 @@ describe("Todo Services test", () => {
 
     expect(allTodos[0].description).toStrictEqual(todo1Description);
     expect(allTodos[1].description).toStrictEqual(todo2Description);
-    expect(allTodos[1].statusconclusion).toEqual(todo2status);
+    expect(allTodos[1].statusConclusion).toEqual(todo2status);
     expect(Object.keys(allTodos).length).toEqual(2);
   });
 

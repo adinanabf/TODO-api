@@ -20,12 +20,12 @@ class TodoRepositoryMock {
     return todo;
   }
 
-  async createTodo(userId, description, deadline, statusconclusion) {
+  async createTodo(userId, description, deadline, statusConclusion) {
     const todo = {
       userId,
       description,
       deadline,
-      statusconclusion,
+      statusConclusion,
     };
 
     return this.todos.push(todo);

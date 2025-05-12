@@ -1,4 +1,4 @@
-const Todo = require("../../models/mongoDb/TODO");
+const Todo = require("../models/TODO");
 
 class TodoRepository {
   async getUserTodos(userId) {
@@ -15,12 +15,12 @@ class TodoRepository {
     return todo.save();
   }
 
-  async createTodo(userId, description, deadline, statusconclusion) {
+  async createTodo(userId, description, deadline, statusConclusion) {
     const todo = new Todo({
       userId,
       description,
       deadline,
-      statusconclusion,
+      statusConclusion,
     });
 
     return todo.save();

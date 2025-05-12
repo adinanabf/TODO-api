@@ -1,9 +1,11 @@
 const AppError = require("../error/AppError");
+const { TodoRepository } = require("../repository/TodoRepository");
+const { UserRepository } = require("../repository/UserRepository");
 
 class TodoServices {
-  constructor({ todoRepository, userRepository }) {
-    this.todoRepository = todoRepository;
-    this.userRepository = userRepository;
+  constructor() {
+    this.todoRepository = new TodoRepository();
+    this.userRepository = new UserRepository();
   }
 
   async listTodos(userId) {
@@ -16,9 +18,9 @@ class TodoServices {
           todoId: todo.id,
           description: todo.description,
           deadline: todo.deadline,
-          statusconclusion: todo.statusconclusion,
+          statusConclusion: todo.statusConclusion,
           isPastDeadline,
-          lastmodification: todo.lastmodification,
+          lastModification: todo.lastModification,
         };
       }
     );
@@ -37,7 +39,7 @@ class TodoServices {
       throw new AppError("There is no change to be made.", 400);
     }
 
-    if (todo.statusconclusion) {
+    if (todo.statusConclusion) {
       throw new AppError("TODO item already closed.", 409);
     }
 
@@ -46,19 +48,19 @@ class TodoServices {
 
     todo.deadline = newDeadline !== undefined ? newDeadline : todo.deadline;
 
-    todo.lastmodification = new Date().toISOString();
+    todo.lastModification = new Date().toISOString();
 
     await this.todoRepository.saveTodo(todo);
 
     return { status: 200, message: "TODO item updated successfully." };
   }
 
-  async createTodo(userId, description, deadline, statusconclusion) {
+  async createTodo(userId, description, deadline, statusConclusion) {
     const todo = await this.todoRepository.createTodo(
       userId,
       description,
       deadline,
-      statusconclusion !== undefined ? statusconclusion : false
+      statusConclusion !== undefined ? statusConclusion : false
     );
 
     return {
@@ -75,12 +77,12 @@ class TodoServices {
       throw new AppError("TODO item not found.", 404);
     }
 
-    if (todo.statusconclusion) {
+    if (todo.statusConclusion) {
       throw new AppError("TODO item already closed.", 409);
     }
 
-    todo.statusconclusion = true;
-    todo.lastmodification = new Date().toISOString();
+    todo.statusConclusion = true;
+    todo.lastModification = new Date().toISOString();
 
     await this.todoRepository.saveTodo(todo);
 
