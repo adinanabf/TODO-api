@@ -1,15 +1,19 @@
 const express = require("express");
+const path = require("path");
 require("express-async-errors");
 const routes = require("./routes/routes");
 const app = express();
 require("dotenv").config();
 
 require("./db/mongoose");
-require("./db/postgres");
+if (process.env.DB === "postgres") {
+  require("./db/postgres");
+}
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "public")));
 
-app.get("/", (__, res) => {
+app.get("/api/health", (__, res) => {
   res.status(200).json({
     message:
       "This is the TODO API, a RESTful API that allows users to manage their to-do lists.",

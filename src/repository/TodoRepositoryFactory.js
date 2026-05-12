@@ -3,27 +3,18 @@ const {
   TodoRepository: MongoTodoRepository,
 } = require("./mongoDb/TodoRepository");
 
-const {
-  TodoRepository: PostgresTodoRepository,
-} = require("./postgres/TodoRepository");
-
 class TodoRepositoryFactory {
-  static async createInstance({ db }) {
-    let repository;
+  static async createInstance({ db } = {}) {
+    const target = db || process.env.DB || "mongo";
 
-    if (!db)
-      throw new AppError(
-        "No database was found. Please select a database.",
-        400
-      );
-
-    if (db === "mongo") {
-      repository = new MongoTodoRepository();
-    } else {
-      repository = new PostgresTodoRepository();
+    if (target === "postgres") {
+      const {
+        TodoRepository: PostgresTodoRepository,
+      } = require("./postgres/TodoRepository");
+      return new PostgresTodoRepository();
     }
 
-    return repository;
+    return new MongoTodoRepository();
   }
 }
 
