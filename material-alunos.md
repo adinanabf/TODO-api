@@ -147,14 +147,33 @@ E toda resposta tem:
 
 **REST** é uma convenção sobre como mapear CRUD em HTTP:
 
+Uma REST API (Interface de Programação de Aplicações para Transferência de Estado Representacional) é um conjunto de regras que permite que dois sistemas de computador se comuniquem pela internet de forma simples e padronizada.
+Pense nela como um garçom em um restaurante: você (o cliente) faz um pedido do menu, o garçom leva o pedido até a cozinha (o servidor) e traz a comida (os dados) de volta para você.
+
+#### Como ela funciona?
+
+A maioria das REST APIs utiliza o protocolo HTTP para trocar informações. Elas funcionam através de quatro operações básicas chamadas CRUD (Criar, Ler, Atualizar e Deletar), mapeadas para verbos HTTP específicos:
+
+- GET: Recupera informações do servidor (ex: ver o perfil de um usuário).
+- POST: Envia novos dados para o servidor para criar algo (ex: criar uma nova conta).
+- PUT/PATCH: Atualiza dados existentes (ex: mudar sua senha).
+- DELETE: Remove informações do servidor (ex: excluir um post).
+
+#### Principais Características
+
+Para que uma API seja considerada "RESTful" (que segue o padrão REST), ela deve respeitar alguns princípios:
+
+- Stateless (Sem Estado): O servidor não guarda memória de pedidos anteriores. Cada requisição deve conter todas as informações necessárias para ser processada.
+- Arquitetura Cliente-Servidor: O cliente (seu navegador ou app) e o servidor (onde os dados estão) operam de forma independente.
+- Interface Uniforme: Todos os recursos são identificados por URLs exclusivas (endpoints), como https://exemplo.com.
+- Formato de Dados: Embora possa usar vários formatos, a maioria das APIs modernas utiliza o JSON por ser leve e fácil de ler tanto para humanos quanto para máquinas. 
+
 | Operação | Verbo HTTP | Exemplo |
 | --- | --- | --- |
 | Create | `POST` | `POST /api/todos` |
 | Read | `GET` | `GET /api/todos` ou `GET /api/todos/123` |
 | Update | `PUT` ou `PATCH` | `PUT /api/todos/123` |
 | Delete | `DELETE` | `DELETE /api/todos/123` |
-
-Esse projeto não segue REST 100% (usa `POST /api/TODO/create` em vez de `POST /api/todos`), mas o conceito é o mesmo.
 
 ### JSON
 
